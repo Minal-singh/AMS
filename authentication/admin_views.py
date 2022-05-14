@@ -79,7 +79,7 @@ def register_student(request):
             return render(request, 'admin_templates/register.html', context, status=400)
 
         try:
-            user = CustomUser.objects.create_user(email=email, password=password, user_type=3, first_name=first_name, last_name=last_name, profile_pic=profile_pic)
+            user = CustomUser.objects.create_user(email=email, password=password, user_type=2, first_name=first_name, last_name=last_name, profile_pic=profile_pic)
             user.gender = gender
             user.student.session = session
             user.student.course = course
