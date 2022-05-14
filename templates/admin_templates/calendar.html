@@ -1,0 +1,39 @@
+{% extends "_partials/base.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href= {% static 'css/calendar.css' %}>
+{% endblock head %}
+{% block title %}
+Calendar
+{% endblock title %}
+{% block content %}
+
+
+<div class="main">
+    <div class="left">
+        <div class="themeSwitch">
+            <img class="switch" />
+        </div>
+        <p class="heading">Calendar</p>
+        <div class="heading-line"></div>
+        <div class="wrapper">
+            <div class="top">
+                <p class="backward"></p>
+                <p class="year-num"></p>
+                <p class="forward"></p>
+            </div>
+            <div class="buttom"></div>
+        </div>
+        <p class="quote">
+            <label class="lbl-one">
+                "A dream is not that which you see while sleeping, it is
+                something that does not let you sleep."
+            </label>
+            <label class="lbl-two"> - A.P.J Abdul Kalam </label>
+        </p>
+    </div>
+    <div class="right"></div>
+</div>
+<script type="text/javascript" src= {% static "js/calendar.js" %}></script>
+
+{% endblock content %}

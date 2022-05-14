@@ -1,0 +1,64 @@
+{% extends '_partials/base.html' %} 
+{% load static %} 
+{% block title %} 
+Register Student 
+{% endblock title %} 
+{% block content %}
+
+{% include '_partials/flash_messages.html'%}
+
+<form action="{% url 'register_student' %}" method="POST"  enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="text" name="first_name" value="{{data.first_name}}" placeholder="John">
+    </div>
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="text" name="last_name" value="{{data.last_name}}" placeholder="Doe">
+    </div>
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="email" name="email" value="{{data.email}}" placeholder="user@example.com">
+    </div>
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="text" name="roll_no" value="{{data.roll_no}}" placeholder="Roll Number">
+    </div>
+
+    <!-- Gender
+    Select Field
+    Options :- Male,Female,Non-binary -->
+
+    <!-- Image Field
+    Note :- Upload not allowed only take photo from camera allowed -->
+
+    <!-- Place these side by side and only accept integer of lenth 4
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="text" name="session_start_year" value="{{data.session_start_year}}" placeholder="yyyy">
+    </div>
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="text" name="session_end_year" value="{{data.session_end_year}}" placeholder="yyyy">
+    </div> -->
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="text" name="course" value="{{data.course}}" placeholder="B. Tech.">
+    </div>
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="text" name="branch" value="{{data.branch}}" placeholder="CSE">
+    </div>
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="password" name="password" value="" placeholder="Password">
+    </div>
+
+    <div class="form-group">
+    <input class="form-control form-control-sm" type="password" name="password2" value="" placeholder="Confirm Password">
+    </div>
+
+    <input type="submit" value="Register Student" class="btn btn-sm btn-block btn-primary"/>
+</form>
+
+{% endblock content %}

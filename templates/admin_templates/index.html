@@ -1,0 +1,276 @@
+{% extends "_partials/base.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href= {% static 'css/dashboard.css' %}>
+{% endblock head %}
+{% block title %}
+Dashboard
+{% endblock title %}
+{% block content %}
+{% include 'admin_templates/sidebar.html' %}
+<!--Main layout-->
+<main>
+  <div class="container pt-4"> 
+    <div class="col main pt-5 mt-3">
+      <h1 class="display-4 d-none d-sm-block">
+      Dashboard
+      </h1>
+      <p class="lead d-none d-sm-block pt-1"><u>Welcome To The Dashboard</u></p>
+
+      <div class="alert alert-warning fade collapse" role="alert" id="myAlert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">×</span>
+              <span class="sr-only">Close</span>
+          </button>
+          <strong>Holy guacamole!</strong> It's free.. this is an example theme.
+      </div>
+      <div class="row mb-3">
+          <div class="col-xl-3 col-sm-6 py-2">
+              <div class="card bg-success text-white h-100">
+                  <div class="card-body bg-success">
+                      <div class="rotate">
+                          <i class="fa fa-user fa-4x"></i>
+                      </div>
+                      <h6 class="text-uppercase">Users</h6>
+                      <h1 class="display-4">134</h1>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-sm-6 py-2">
+              <div class="card text-white bg-danger h-100">
+                  <div class="card-body bg-danger">
+                      <div class="rotate">
+                        <i class="fas fa-check-double fa-4x"></i>
+                      </div>
+                      <h6 class="text-uppercase">Present</h6>
+                      <h1 class="display-4">87</h1>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-sm-6 py-2">
+              <div class="card text-white bg-info h-100">
+                  <div class="card-body bg-info">
+                      <div class="rotate">
+                        <i class="far fa-times-circle fa-4x"></i>
+                      </div>
+                      <h6 class="text-uppercase">Absent</h6>
+                      <h1 class="display-4">125</h1>
+                  </div>
+              </div>
+          </div>
+          <div class="col-xl-3 col-sm-6 py-2">
+              <div class="card text-white bg-warning h-100">
+                  <div class="card-body">
+                      <div class="rotate">
+                        <i class="fas fa-clock fa-4x"></i>
+                      </div>
+                      <h6 class="text-uppercase">Late comes</h6>
+                      <h1 class="display-4">36</h1>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <!--/row-->
+
+      <hr>
+     
+
+      <a id="features"></a>
+      <hr>
+      <p class="lead mt-5">
+         Lorem ipsum, dolor sit amet consectetur adipisicing elit. Neque delectus minima quasi sint ratione ipsam magnam ipsum, aperiam sit tempore rem dolores voluptatibus. Quam, totam quis. Laudantium facere sint cupiditate.
+      </p>
+      <div class="row my-4">
+          <div class="col-lg-3 col-md-4">
+              <div class="card">
+                <h4 class="card-title ms-5 fw-bold">Overall Status</h4>
+                  <img class="card-img-top img-fluid" src="https://i.ibb.co/GtML0Dw/Untitled-design.png" alt="Card image cap">
+                  <div class="card-body">
+                  </div>
+              </div>
+              
+          </div>
+          <div class="col-lg-9 col-md-8">
+              <div class="table-responsive">
+                  <table class="table table-striped">
+                      <thead class="thead-inverse">
+                          <tr>
+                              <th>S.No</th>
+                              <th>Student Name</th>
+                              <th>Start Time</th>
+                              <th>Finish TIme</th>
+                              <th>Work Time</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                        {% for _ in '0123456789'|make_list %}
+                        <tr>
+                          <td>{{forloop.counter}}</td>
+                          <td>MInal</td>
+                          <td>10 AM</td>
+                          <td>12 Pm</td>
+                          <td>2.00</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                  </table>
+              </div>
+          </div>
+      </div>
+  </div>
+</main>
+<!--Main layout-->
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <table id="animations-example-2" class="charts-css bar hide-data show-labels data-spacing-5 show-primary-axis">
+        <caption> Animation Example #2 - The Richest People In America (Forbes 1918) </caption> 
+        <thead>
+          <tr>
+            <th scope="col"> Country </th>
+             <th scope="col"> Gold </th> 
+             <th scope="col"> Silver </th> 
+             <th scope="col"> Silver </th>
+            </tr>
+          </thead> 
+          <tbody>
+            <tr>
+              <th scope="row"> John D. Rockefeller </th>
+               <td style="--size:calc( 1200 / 1200 );">
+                <span class="data"> 1,200 </span>
+              </td>
+              </tr> 
+              <tr>
+                <th scope="row"> Henry Clay Frick </th>
+                 <td style="--size:calc( 225 / 1200 );">
+                  <span class="data"> 225 </span>
+                </td>
+              </tr>
+               <tr>
+                 <th scope="row"> Andrew Carnegie </th>
+                  <td style="--size:calc( 200 / 1200 );">
+                    <span class="data"> 200 </span>
+                  </td>
+                </tr> 
+                <tr>
+                  <th scope="row"> George Fisher Baker </th>
+                   <td style="--size:calc( 150 / 1200 );">
+                    <span class="data"> 150 </span>
+                  </td>
+                </tr> 
+                <tr>
+                  <th scope="row"> William Rockefeller </th>
+                   <td style="--size:calc( 150 / 1200 );">
+                    <span class="data"> 150 </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+    </div>
+    <div class="col">
+      <table id="animations-example-6" class="charts-css column show-labels hide-data data-spacing-5 show-primary-axis"><caption> Animation Example #6 </caption> <thead><tr><th scope="col"> Year </th> <th scope="col"> Progress </th></tr></thead> <tbody><tr><th scope="row"> 2016 </th> <td style="--size:0.2;"><span class="data"> 20 </span></td></tr> <tr><th scope="row"> 2017 </th> <td style="--size:0.4;"><span class="data"> 40 </span></td></tr> <tr><th scope="row"> 2018 </th> <td style="--size:1;"><span class="data"> 100 </span></td></tr> <tr><th scope="row"> 2019 </th> <td style="--size:0.5;"><span class="data"> 50 </span></td></tr> <tr><th scope="row"> 2020 </th> <td style="--size:0.3;"><span class="data"> 30 </span></td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div id="wrapper">
+      
+      
+        <div id="q2_2010">
+        <div id="q1_2010">
+        <div id="q4_2009">
+        <div id="q3_2009">
+        <div id="q2_2009">
+        <div id="q1_2005">
+          <div id="labels">
+            <ul>
+              <li><span></span>Internet Explorer</li>
+              <li><span></span>Mozilla Firefox</li>
+              <li><span></span>Google Chrome</li>
+              <li><span></span>Safari</li>
+              <li><span></span>Opera</li>
+            </ul>
+          </div>
+          <div id="pie_ico">Pie &raquo;</div>
+          <div id="pyr_ico">&laquo; Pyramid</div>
+          <div id="percentage_wrapper">
+            <div id="percentage">
+              <ul>
+                <li><p>60.14%</p><p>61.79%</p><p>63.90%</p><p>67.02%</p><p>68.28%</p><p>89.68%</p></li>
+                <li><p>24.98%</p><p>24.56%</p><p>24.39%</p><p>23.28%</p><p>23.22%</p><p>6.83%</p></li>
+                <li><p>7.14%</p><p>6.03%</p><p>4.27%</p><p>3.08%</p><p>2.35%</p><p>0%</p></li>
+                <li><p>5.10%</p><p>4.91%</p><p>4.64%</p><p>4.35%</p><p>3.89%</p><p>2.36%</p></li>
+                <li><p>2.66%</p><p>2.73%</p><p>2.52%</p><p>2.29%</p><p>2.27%</p><p>1.15%</p></li>
+              </ul>
+            </div>
+          </div>
+          <div id="slider">
+            <div id="chart_holder">
+              <div id="pie_chart">
+                <ul>
+                  <li id="c1_r"><p><span class="pie_left"></span></p></li> 	
+                  <li id="c1_l"><p><span class="pie_right"></span></p></li>
+                  <li id="c2_r"><p><span class="pie_left"></span></p></li> 	
+                  <li id="c2_l"><p><span class="pie_right"></span></p></li>
+                  <li id="c3_r"><p><span class="pie_left"></span></p></li> 	
+                  <li id="c3_l"><p><span class="pie_right"></span></p></li>
+                  <li id="c4_r"><p><span class="pie_left"></span></p></li> 	
+                  <li id="c4_l"><p><span class="pie_right"></span></p></li>
+                  <li id="c5_r"><p><span class="pie_left"></span></p></li> 	
+                  <li id="c5_l"><p><span class="pie_right"></span></p></li>
+                </ul>
+              </div>
+              <div id="pyr_chart">
+                <ul>
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div id="btn_panel">
+            <ul>
+              <li><a href="#q1_2005"><span>Q1</span><span>2005</span></a></li>
+              <li><a href="#q2_2009"><span>Q2</span><span>2009</span></a></li>
+              <li><a href="#q3_2009"><span>Q3</span><span>2009</span></a></li>
+              <li><a href="#q4_2009"><span>Q4</span><span>2009</span></a></li>
+              <li><a href="#q1_2010"><span>Q1</span><span>2010</span></a></li>
+              <li><a href="#q2_2010"><span>Q2</span><span>2010</span></a></li>
+            </ul>
+          </div>
+        </div>
+        </div>
+        </div> 
+        </div> 
+        </div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <table id="line-example-16" class="charts-css line multiple hide-data show-labels"><caption> Line Example #16 </caption> <thead><tr><th scope="col"> Year </th> <th scope="col"> Progress 1 </th> <th scope="col"> Progress 2 </th> <th scope="col"> Progress 3 </th></tr></thead> <tbody><tr><th scope="row"> 2000 </th> <td style="--start:0.1; --size:0.5;"><span class="data"> 50 </span></td> <td style="--start:0; --size:0.2;"><span class="data"> 20 </span></td> <td style="--start:0.2; --size:0.4;"><span class="data"> 40 </span></td></tr> <tr><th scope="row"> 2010 </th> <td style="--start:0.5; --size:0.8;"><span class="data"> 80 </span></td> <td style="--start:0.2; --size:0.5;"><span class="data"> 50 </span></td> <td style="--start:0.4; --size:0.1;"><span class="data"> 10 </span></td></tr> <tr><th scope="row"> 2020 </th> <td style="--start:0.8; --size:0.4;"><span class="data"> 40 </span></td> <td style="--start:0.5; --size:0.3;"><span class="data"> 30 </span></td> <td style="--start:0.1; --size:0.2;"><span class="data"> 20 </span></td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  $(document).ready(function() {
+    
+    $('[data-toggle=offcanvas]').click(function() {
+      $('.row-offcanvas').toggleClass('active');
+    });
+    
+  });
+
+</script>
+{% endblock content %}
