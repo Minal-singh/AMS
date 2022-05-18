@@ -1,0 +1,25 @@
+{% extends "admin_templates/base.html" %} 
+{% load static %} 
+{% block title %} 
+Create Dataset
+{% endblock title %} 
+{% block content %}
+
+{% include '_partials/flash_messages.html'%}
+
+{{data.user.first_name}}
+
+<form action="{%url 'create_dataset_for_student' data.user_id %}" method="POST">
+    {% csrf_token%}
+    <input
+        type="submit"
+        {% if data.dataset_created %}
+        value="Re-create dataset"
+        {% else %}
+        value="Create dataset"
+        {% endif %}
+        class="btn btn-block btn-primary"
+    />
+</form>
+
+{% endblock content %}

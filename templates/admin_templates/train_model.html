@@ -1,0 +1,64 @@
+{% extends "admin_templates/base.html" %} 
+{% load static %} 
+{% block title %} 
+Train Model
+{% endblock title %} 
+{% block content %}
+{% include '_partials/flash_messages.html'%}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">First Name</th>
+      <th scope="col">Last Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Roll No.</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for student in students_without_model_trained %}
+    <tr>
+      <td>{{student.user.first_name}}</td>
+      <td>{{student.user.last_name}}</td>
+      <td>{{student.user.email}}</td>
+      <td>{{student.roll_no}}</td>
+      <td><a><i class="fa fa-camera"></i></a></td>
+    </tr>
+    
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  Train Model
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Taining model may take some minutes, so it is recommended to create dataset for all the students and then train the model at once.
+      </div>
+      <div class="modal-footer">
+        <form action="{%url 'train_model'%}" method="POST">
+            {% csrf_token%}
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Train Later</button>
+            <input
+                type="submit"
+                value="Train Now"
+                class="btn btn-block btn-primary"
+            />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

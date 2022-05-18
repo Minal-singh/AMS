@@ -1,4 +1,4 @@
-{% extends "_partials/base.html" %}
+{% extends "main/base.html" %}
 {% load static %} 
 {% block title %} 
 Login 
@@ -23,11 +23,9 @@ Login
 
 {% endblock head %} 
 {% block content %} 
-<!-- {% include 'main/navbar.html'%} -->
 
 <section class="vh-100 gradient-custom">
-  <button class="btn btn-warning"><a href={% url "homepage" %}>Attendace Management</a></button>
-  <div class="container py-5 h-100">
+  <div class="container h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
       <div class="col-12 col-md-8 col-lg-6 col-xl-5">
         <div class="card bg-dark text-white" style="border-radius: 1rem">
@@ -35,7 +33,7 @@ Login
             <div class="mb-md-5 mt-md-4 pb-5">
               <h2 class="fw-bold mb-2 text-uppercase">Login</h2>
               <p class="text-white-50 mb-5">
-                Please enter your login and password!
+                Please enter your login credentials!
               </p>
               {% include '_partials/flash_messages.html'%}
               <form action="{%url 'login'%}" method="POST">

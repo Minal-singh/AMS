@@ -139,7 +139,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authentication.CustomUser'
 
-AUTHENTICATION_BACKENDS = ['authencitation.email_backend.EmailBackend']
+AUTHENTICATION_BACKENDS = ['authentication.email_backend.EmailBackend']
 
 MESSAGE_TAGS={
     messages.ERROR:'danger'

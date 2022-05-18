@@ -1,7 +1,13 @@
-from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect, render, reverse
+from django.contrib.auth import login, logout
 from django.contrib import messages
 from .email_backend import EmailBackend
+
+# def handle_not_found(request, exception):
+#     return render(request, '_partials/error_404.html')
+
+# def handle_server_error(request):
+#     return render(request, 'server-error.html')
 
 def index(request):
     return render(request,"main/homepage.html")
@@ -19,12 +25,10 @@ def login_user(request, **kwargs):
         password = request.POST.get('password')
 
         if email == '':
-            messages.add_message(request, messages.ERROR,
-                                 'Email is required')
+            messages.add_message(request, messages.ERROR,'Email is required')
             context['has_error'] = True
         if password == '':
-            messages.add_message(request, messages.ERROR,
-                                 'Password is required')
+            messages.add_message(request, messages.ERROR,'Password is required')
             context['has_error'] = True
 
         user = EmailBackend.authenticate(request, username=email, password=password)

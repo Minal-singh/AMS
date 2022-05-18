@@ -1,64 +1,146 @@
-{% extends '_partials/base.html' %} 
+{% extends 'admin_templates/base.html' %}
 {% load static %} 
-{% block title %} 
-Register Student 
-{% endblock title %} 
-{% block content %}
+{% block title %} Register Student {% endblock title %} 
+{% block content %} 
+{% include '_partials/flash_messages.html' %}
 
-{% include '_partials/flash_messages.html'%}
+<div class="container">
+<form
+  action="{% url 'register_student' %}"
+  method="POST"
+  enctype="multipart/form-data"
+>
+  {% csrf_token %}
 
-<form action="{% url 'register_student' %}" method="POST"  enctype="multipart/form-data">
-    {% csrf_token %}
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      name="first_name"
+      value="{{data.first_name}}"
+      placeholder="John"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="text" name="first_name" value="{{data.first_name}}" placeholder="John">
-    </div>
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      name="last_name"
+      value="{{data.last_name}}"
+      placeholder="Doe"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="text" name="last_name" value="{{data.last_name}}" placeholder="Doe">
-    </div>
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="email"
+      name="email"
+      value="{{data.email}}"
+      placeholder="user@example.com"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="email" name="email" value="{{data.email}}" placeholder="user@example.com">
-    </div>
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      name="roll_no"
+      value="{{data.roll_no}}"
+      placeholder="Roll Number"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="text" name="roll_no" value="{{data.roll_no}}" placeholder="Roll Number">
-    </div>
+  <select class="form-select" name="gender" aria-label="Default select example" required>
+    <option value="M" selected>Male</option>
+    <option value="F">Female</option>
+    <option value="N">Non-binary</option>
+  </select>
 
-    <!-- Gender
-    Select Field
-    Options :- Male,Female,Non-binary -->
+  <div class="mb-3">
+    <input class="form-control" type="file" accept="image/*" name="profile_pic" />
+  </div>
 
-    <!-- Image Field
-    Note :- Upload not allowed only take photo from camera allowed -->
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      name="session_start_year"
+      value="{{data.session_start_year}}"
+      placeholder="yyyy"
+      required
+    />
+  </div>
 
-    <!-- Place these side by side and only accept integer of lenth 4
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="text" name="session_start_year" value="{{data.session_start_year}}" placeholder="yyyy">
-    </div>
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      name="session_end_year"
+      value="{{data.session_end_year}}"
+      placeholder="yyyy"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="text" name="session_end_year" value="{{data.session_end_year}}" placeholder="yyyy">
-    </div> -->
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      name="course"
+      value="{{data.course}}"
+      placeholder="B. Tech."
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="text" name="course" value="{{data.course}}" placeholder="B. Tech.">
-    </div>
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="text"
+      name="branch"
+      value="{{data.branch}}"
+      placeholder="CSE"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="text" name="branch" value="{{data.branch}}" placeholder="CSE">
-    </div>
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="password"
+      name="password"
+      value=""
+      placeholder="Password"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="password" name="password" value="" placeholder="Password">
-    </div>
+  <div class="form-group">
+    <input
+      class="form-control form-control-sm"
+      type="password"
+      name="password2"
+      value=""
+      placeholder="Confirm Password"
+      required
+    />
+  </div>
 
-    <div class="form-group">
-    <input class="form-control form-control-sm" type="password" name="password2" value="" placeholder="Confirm Password">
-    </div>
-
-    <input type="submit" value="Register Student" class="btn btn-sm btn-block btn-primary"/>
+  <input
+    type="submit"
+    value="Register Student"
+    class="btn btn-sm btn-block btn-primary"
+  />
 </form>
+<a href="?reset=true">
+  <button class="mt-2 btn btn-primary">Reset Form</button>
+</a>
+</div>
 
 {% endblock content %}

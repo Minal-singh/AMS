@@ -1,3 +1,5 @@
+from .models import Student
+
 def validate_session(start_year,end_year):
 
     start_year = int(start_year)
@@ -12,3 +14,8 @@ def validate_session(start_year,end_year):
         return False
 
     return True
+
+def check_student(id):
+	if Student.objects.filter(user_id=id).exists():
+		return True
+	return False

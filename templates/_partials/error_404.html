@@ -1,0 +1,23 @@
+{% extends '_partials/base.html' %}
+{% load static %} 
+{% block head %} 
+<link rel="stylesheet" href={% static 'css/error_404.css'}>
+{% endblock head %}
+{% block title %} Error 404 {% endblock title %}
+
+{% block content %}
+
+<div class="error-page">
+<div class="main-wrapper">
+    <div class="error-box">
+        <h1>404</h1>
+        <h3 class="h2 mb-3">
+        <i class="fas fa-exclamation-triangle"></i> Oops! Page not found!
+        </h3>
+        <p class="h4 font-weight-normal">The page you requested was not found.</p>
+        <a href={% url 'homepage' %} class="btn btn-primary">Back to Home</a>
+    </div>
+    </div>
+</div>
+
+{% endblock content %}
