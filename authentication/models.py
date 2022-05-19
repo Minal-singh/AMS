@@ -1,16 +1,18 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser,UserManager
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.hashers import make_password
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 import datetime
 import uuid
 
-def profile_pic_directory_path(instance,filename):
+
+def profile_pic_directory_path(instance, filename):
     name, ext = filename.split(".")
     name = str(instance.id)
-    filename = name +'.'+ ext 
-    return 'profile_pictures/{}/{}'.format(str(instance.id),filename)
+    filename = name + "." + ext
+    return "profile_pictures/{}/{}".format(str(instance.id), filename)
+
 
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
@@ -32,16 +34,19 @@ class CustomUserManager(UserManager):
         assert extra_fields["is_superuser"]
         return self._create_user(email, password, **extra_fields)
 
+
 class CustomUser(AbstractUser):
-    USER_TYPE = ((1, "ADMIN"),(2, "Student"))
+    USER_TYPE = ((1, "ADMIN"), (2, "Student"))
     GENDER = [("M", "Male"), ("F", "Female"), ("N", "Non-binary")]
 
-    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = None  # Removed username, using email instead
     email = models.EmailField(unique=True)
     user_type = models.CharField(default=1, choices=USER_TYPE, max_length=1)
     gender = models.CharField(max_length=1, choices=GENDER)
-    profile_pic = models.ImageField(upload_to=profile_pic_directory_path,blank=True,null=True)
+    profile_pic = models.ImageField(
+        upload_to=profile_pic_directory_path, blank=True, null=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     USERNAME_FIELD = "email"
@@ -51,27 +56,31 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.first_name + " " + self.last_name
 
+
 class Admin(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+
 
 class Student(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     roll_no = models.CharField(max_length=32)
-    branch = models.CharField(max_length = 120)
-    course = models.CharField(max_length = 120)
-    session = models.CharField(max_length = 9)
+    branch = models.CharField(max_length=120)
+    course = models.CharField(max_length=120)
+    session = models.CharField(max_length=9)
     dataset_created = models.BooleanField(default=False)
     model_trained = models.BooleanField(default=False)
 
     def __str__(self):
         return self.roll_no
 
+
 class Attendance(models.Model):
-    user = models.ForeignKey(Student,on_delete=models.CASCADE)
+    user = models.ForeignKey(Student, on_delete=models.CASCADE)
     date = models.DateField(default=datetime.date.today)
     # path to picture used to mark attendance
-    path_to_picture = models.CharField(max_length=256,null=True,blank=True)
-    present=models.BooleanField(default=False)
+    path_to_picture = models.CharField(max_length=256, null=True, blank=True)
+    present = models.BooleanField(default=False)
+
 
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -80,6 +89,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             Admin.objects.create(user=instance)
         if instance.user_type == 2:
             Student.objects.create(user=instance)
+
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
