@@ -64,13 +64,13 @@ class Student(models.Model):
     model_trained = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.first_name + " " + self.user.last_name
+        return self.roll_no
 
 class Attendance(models.Model):
     user = models.ForeignKey(Student,on_delete=models.CASCADE)
     date = models.DateField(default=datetime.date.today)
     # path to picture used to mark attendance
-    path_to_picture = models.CharField(max_length=120,null=True,blank=True)
+    path_to_picture = models.CharField(max_length=256,null=True,blank=True)
     present=models.BooleanField(default=False)
 
 @receiver(post_save, sender=CustomUser)

@@ -2,12 +2,12 @@ from django.shortcuts import render,reverse,redirect,get_object_or_404
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 import face_recognition
-import cv2
-import numpy as np
-from sklearn import neighbors
-import pickle
-from PIL import Image, ImageDraw
 from face_recognition.face_recognition_cli import image_files_in_folder
+import cv2
+from PIL import Image, ImageDraw
+from sklearn import neighbors
+import numpy as np
+import pickle
 import os
 import shutil
 import math
@@ -68,7 +68,7 @@ def create_dataset_util(id,camera=0):
         final_image.save(directory+'/'+str(sampleNum)+'.jpg')
         cv2.rectangle(frame,(left,top),(right,bottom),(0,255,0),1)
         cv2.waitKey(100)
-        cv2.imshow("press q to quit",frame)
+        cv2.imshow("camera",frame)
         cv2.waitKey(1)
         #To get out of the loop
         if(sampleNum>120):
@@ -84,7 +84,7 @@ def train_model_util():
     X = []
     y = []
     train_dir = MODEL_DATA_PATH + "dataset/"
-    if os.path.exists(MODEL_DATA_PATH + "dataset/") and len(os.listdir(train_dir))==0:
+    if os.path.exists(train_dir) and len(os.listdir(train_dir))==0:
         return False,{"message":"No dataset found to create model"}
 
     model_trained_for = []
@@ -111,10 +111,10 @@ def train_model_util():
         except Exception as e:
             continue
 
-    # Determine how many neighbors to use for weighting in the KNN classifier
     if len(X)==0:
         return False,{"message":"No dataset found to create model"}
 
+    # Determine how many neighbors to use for weighting in the KNN classifier
     n_neighbors = int(round(math.sqrt(len(X))))
 
     knn_algo = "ball_tree"
@@ -124,7 +124,7 @@ def train_model_util():
     knn_clf.fit(X, y)
 
     # Save the trained KNN classifier
-    model_save_path = os.path.join(BASE_DIR,"media/model_data/trained_knn_model.clf")
+    model_save_path = os.path.join(MODEL_DATA_PATH,"trained_knn_model.clf")
     with open(model_save_path, 'wb') as f:
         pickle.dump(knn_clf, f)
 
