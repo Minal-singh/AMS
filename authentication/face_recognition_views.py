@@ -1,5 +1,6 @@
 from django.shortcuts import render, reverse, get_object_or_404
 from django.http import HttpResponseRedirect
+from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 import face_recognition
 from face_recognition.face_recognition_cli import image_files_in_folder
@@ -9,8 +10,7 @@ from sklearn import neighbors
 import numpy as np
 import pickle
 import os
-
-# import shutil
+import shutil
 import math
 import datetime
 from .models import CustomUser, Attendance, Student
@@ -20,7 +20,9 @@ from django.conf import settings
 BASE_DIR = settings.BASE_DIR
 MODEL_DATA_PATH = os.path.join(BASE_DIR, "media/model_data/")
 MODEL = "hog"
+DISTANCE_THRESHOLD = 0.5
 
+# UTILITY FUNCTIONS
 
 def create_dataset_util(id, camera=0):
     if os.path.exists(MODEL_DATA_PATH + "dataset/") is False:
@@ -33,17 +35,19 @@ def create_dataset_util(id, camera=0):
 
     video = cv2.VideoCapture(camera)
 
+    success = True
     # Our dataset naming counter
-    sampleNum = 0
+    valid_frames_count = 0
+    # To terminate loop if frames are not generated properly
+    invalid_frames_count = 0
     # Capturing the faces one by one and detect the faces and showing it on the window
     while True:
         # Grab a single frame of video
         ret, frame = video.read()
 
         if not ret:
-            video.release()
-            cv2.destroyAllWindows()
-            return False
+            success = False
+            break
 
         # Resize frame of video to 1/4 size for faster face recognition processing
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
@@ -53,8 +57,13 @@ def create_dataset_util(id, camera=0):
 
         face_bounding_boxes = face_recognition.face_locations(rgb_small_frame, model=MODEL)
 
+        if invalid_frames_count > 100:
+            success = False
+            break
+
         # If there are no people (or too many people) in a frame, skip it.
         if len(face_bounding_boxes) != 1:
+            invalid_frames_count = invalid_frames_count + 1
             continue
 
         top, right, bottom, left = face_bounding_boxes[0]
@@ -63,22 +72,23 @@ def create_dataset_util(id, camera=0):
         right *= 4
         left *= 4
 
-        sampleNum = sampleNum + 1
+        valid_frames_count = valid_frames_count + 1
         face_image_array = frame[top:bottom, left:right]
         final_image = Image.fromarray(face_image_array)
-        final_image.save(directory + "/" + str(sampleNum) + ".jpg")
+        final_image.save(directory + "/" + str(valid_frames_count) + ".jpg")
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 1)
         cv2.waitKey(100)
         cv2.imshow("camera", frame)
         cv2.waitKey(1)
         # To get out of the loop
-        if sampleNum > 120:
+        if valid_frames_count > 120:
+            success = True
             break
     # Stoping the videostream
     video.release()
     # destroying all the windows
     cv2.destroyAllWindows()
-    return True
+    return success
 
 
 def train_model_util():
@@ -134,10 +144,10 @@ def train_model_util():
             user = CustomUser.objects.get(id=id)
             user.student.model_trained = True
             user.student.save()
-    return True, {}
+    return True, {"message": "Model trained successfully"}
 
 
-def predict(X_frame, distance_threshold=0.5):
+def predict(X_frame):
     model_path = MODEL_DATA_PATH + "trained_knn_model.clf"
     try:
         with open(model_path, "rb") as f:
@@ -156,7 +166,7 @@ def predict(X_frame, distance_threshold=0.5):
 
     # Use the KNN model to find the best matches for the test face
     closest_distances = knn_clf.kneighbors(faces_encodings, n_neighbors=1)
-    are_matches = [closest_distances[0][i][0] <= distance_threshold for i in range(len(X_face_locations))]
+    are_matches = [closest_distances[0][i][0] <= DISTANCE_THRESHOLD for i in range(len(X_face_locations))]
 
     # Predict classes and remove classifications that aren't within the threshold
     return True, [
@@ -228,6 +238,9 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
     return opencvimage, attendance_marked_for_students
 
 
+# VIEWS
+
+
 def create_dataset(request):
     students_without_dataset_created = Student.objects.filter(dataset_created=False)
     context = {"students_without_dataset_created": students_without_dataset_created}
@@ -243,6 +256,7 @@ def create_dataset_for_student(request, id):
             if success:
                 user = CustomUser.objects.get(id=id)
                 user.student.dataset_created = True
+                user.student.model_trained = False
                 username = user.first_name + " " + user.last_name
                 user.student.save()
                 messages.add_message(
@@ -251,14 +265,32 @@ def create_dataset_for_student(request, id):
                     f"Dataset created successfully for {username}",
                 )
             else:
-                # if(os.path.exists(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))):
-                #     print("removing...")
-                #     shutil.rmtree(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))
+                if(os.path.exists(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))):
+                    shutil.rmtree(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))
                 messages.add_message(request, messages.ERROR, "Something went wrong...")
         else:
             messages.add_message(request, messages.ERROR, "Student not found!")
-        return HttpResponseRedirect(reverse("create_dataset"))
+            # if student not found redirect to create dataset page
+            return HttpResponseRedirect(reverse("create_dataset"))
+        # if dataset created or something went wrong redirect to same page to clear post data
+        return HttpResponseRedirect(reverse("create_dataset_for_student", args=[id]))
     return render(request, "admin_templates/create_dataset_for_student.html", context)
+
+
+@require_http_methods(["POST"])
+def delete_dataset_for_student(request, id):
+    if check_student(id):
+        user = Student.objects.get(user_id=id)
+        username = user.student.first_name + " " + user.student.last_name
+        user.dataset_created = False
+        user.model_trained = False
+        user.save()
+        messages.add_message(request, messages.SUCCESS, f"{username}'s dataset deleted!")
+    else:
+        messages.add_message(request, messages.ERROR, "Student not found!")
+        # if student not found redirect to create dataset page
+        return HttpResponseRedirect(reverse("create_dataset"))
+    return HttpResponseRedirect(reverse("create_dataset_for_student", args=[id]))
 
 
 def train_model(request):
@@ -268,7 +300,7 @@ def train_model(request):
         print("training...")
         success, message = train_model_util()
         if success:
-            messages.add_message(request, messages.SUCCESS, "Model trained successfully")
+            messages.add_message(request, messages.SUCCESS, message["message"])
         else:
             messages.add_message(request, messages.ERROR, message["message"])
         return HttpResponseRedirect(reverse("train_model"))
@@ -311,3 +343,12 @@ def mark_attendance(request):
         cv2.destroyAllWindows()
         return HttpResponseRedirect(reverse("mark_attendance"))
     return render(request, "admin_templates/mark_attendance.html")
+
+@require_http_methods(["POST"])
+def delete_attendance_photos(request):
+    if os.path.exists(os.path.join(BASE_DIR,"attendance_pic")):
+        shutil.rmtree(os.path.join(BASE_DIR,"attendance_pic"))
+    Attendance.objects.all().update(path_to_picture = None)
+    messages.add_message(request,messages.SUCCESS,"Successfully deleted all pictures used to mark attendance.")
+    return HttpResponseRedirect(reverse("students"))
+    

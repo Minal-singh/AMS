@@ -8,6 +8,13 @@ Create Dataset
 {% include '_partials/flash_messages.html'%}
 
 {{data.user.first_name}}
+<!-- <br/>
+{% if data.dataset_created %}
+<button class="btn btn-primary">Re-create Dataset</button>
+<button class="btn btn-danger">Delete Dataset</button>
+{% else %}
+<button class="btn btn-primary">Create Dataset</button>
+{% endif %} -->
 
 <form action="{%url 'create_dataset_for_student' data.user_id %}" method="POST">
     {% csrf_token%}

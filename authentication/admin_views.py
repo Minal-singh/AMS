@@ -2,13 +2,17 @@ from django.shortcuts import render, reverse, redirect
 from django.http import HttpResponseRedirect
 from validate_email import validate_email
 from django.contrib import messages
+from .filters import StudentFilter
 from .utils import validate_session
 from .models import Student, CustomUser
 
 
 def index(request):
     students = Student.objects.all()
-    return render(request, "admin_templates/dashboard.html", {"students": students})
+    filter = StudentFilter(request.GET, queryset=students)
+    students = filter.qs
+    context = {"filter": filter, "students": students}
+    return render(request, "admin_templates/dashboard.html", context)
 
 
 def register_student(request):
