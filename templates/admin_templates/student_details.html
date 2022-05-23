@@ -1,0 +1,24 @@
+{% extends "admin_templates/base.html" %} 
+{% load static %} 
+{% block head %}
+<link rel="stylesheet" type="text/css" href= {% static 'css/student_details.css' %}>
+{% endblock head %}
+{% block title %} 
+Student detail
+{% endblock title %} 
+{% block content %}
+
+{% include '_partials/flash_messages.html'%}
+
+<div class="container mx-3">
+    <div class="row">
+        <div class="col-md-4 col-sm-12">
+
+        </div>
+        <div class="col-md-4 col-sm-12">
+            
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

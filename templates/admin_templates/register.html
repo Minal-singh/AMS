@@ -7,144 +7,6 @@
 {% block content %} 
 {% include '_partials/flash_messages.html' %}
 
-<!-- <div class="container">
-<form
-  action="{% url 'register_student' %}"
-  method="POST"
-  enctype="multipart/form-data"
->
-  {% csrf_token %}
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="text"
-      name="first_name"
-      value="{{data.first_name}}"
-      placeholder="John"
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="text"
-      name="last_name"
-      value="{{data.last_name}}"
-      placeholder="Doe"
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="email"
-      name="email"
-      value="{{data.email}}"
-      placeholder="user@example.com"
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="text"
-      name="roll_no"
-      value="{{data.roll_no}}"
-      placeholder="Roll Number"
-      required
-    />
-  </div>
-
-  <select class="form-select" name="gender" aria-label="Default select example" required>
-    <option value="M" selected>Male</option>
-    <option value="F">Female</option>
-    <option value="N">Non-binary</option>
-  </select>
-
-  <div class="mb-3">
-    <input class="form-control" type="file" accept="image/*" name="profile_pic" />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="text"
-      name="session_start_year"
-      value="{{data.session_start_year}}"
-      placeholder="yyyy"
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="text"
-      name="session_end_year"
-      value="{{data.session_end_year}}"
-      placeholder="yyyy"
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="text"
-      name="course"
-      value="{{data.course}}"
-      placeholder="B. Tech."
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="text"
-      name="branch"
-      value="{{data.branch}}"
-      placeholder="CSE"
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="password"
-      name="password"
-      value=""
-      placeholder="Password"
-      required
-    />
-  </div>
-
-  <div class="form-group">
-    <input
-      class="form-control form-control-sm"
-      type="password"
-      name="password2"
-      value=""
-      placeholder="Confirm Password"
-      required
-    />
-  </div>
-
-  <input
-    type="submit"
-    value="Register Student"
-    class="btn btn-sm btn-block btn-primary"
-  />
-</form>
-<a href="?reset=true">
-  <button class="mt-2 btn btn-primary">Reset Form</button>
-</a>
-</div> -->
 
 <div class="wrapper rounded bg-white">
   <div class="row  pb-2">
@@ -157,7 +19,7 @@
       method="POST"
       enctype="multipart/form-data"
       novalidate>
-  {% csrf_token %}
+    {% csrf_token %}
     <div class="row p-1">
       <div class="col-md-6 mt-md-0 mt-3">
         <label>First Name</label>
@@ -331,7 +193,7 @@
         value="Register Student"
         class="btn btn-primary mt-3"
       />
-    </form>
+  </form>
 </div>
 
 <script type="text/javascript" src={% static "js/register_student.js" %}></script>

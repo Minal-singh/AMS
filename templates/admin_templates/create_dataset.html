@@ -36,7 +36,7 @@ Create Dataset
                     </td>                  
                     <td class="pt-3 mt-1">{{student.user.email}}</td>
                     <td class="pt-3">{{student.roll_no}}</td>
-                    <td><a href= {% url 'create_dataset_for_student' student.user.id %} ><i class="fa fa-camera fa-lg btn mt-1" data-bs-toggle="tooltip" data-bs-placement="left" title="Create Dataset"></i></a></td>
+                    <td><a href= {% url 'student_detail' student.user.id %} ><i class="fa fa-camera fa-lg btn mt-1" data-bs-toggle="tooltip" data-bs-placement="left" title="Create Dataset"></i></a></td>
                 </tr>
                 <tr id="spacing-row">
                     <td></td>
