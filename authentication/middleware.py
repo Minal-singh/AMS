@@ -21,10 +21,10 @@ class LoginCheckMiddleWare(MiddlewareMixin):
                 return redirect(reverse("login"))
         else:
             if (
-                request.path == reverse("homepage")
+                request.path == reverse("home")
                 or modulename == "django.contrib.auth.views"
                 or request.path == reverse("login")
             ):  # If the path is homepage or login or has anything to do with authentication, pass
                 pass
             else:
-                return redirect(reverse("homepage"))
+                return redirect(reverse("home"))

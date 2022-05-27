@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-6d%l8mlkllm=9195b+=*09z&)3)07soq&4q-^#k9eosnmwviwi
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -52,7 +52,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # My Middleware
-    # 'authentication.middleware.LoginCheckMiddleWare',
+    'authentication.middleware.LoginCheckMiddleWare',
 ]
 
 ROOT_URLCONF = "attendance_management.urls"
@@ -143,4 +143,4 @@ MESSAGE_TAGS = {messages.ERROR: "danger"}
 
 LOGIN_URL = "login"
 LOGOUT_URL = "logout"
-LOGOUT_REDIRECT_URL = "homepage"
+LOGOUT_REDIRECT_URL = "login"

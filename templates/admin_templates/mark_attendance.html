@@ -7,6 +7,9 @@ Mark Attendance
 
 {% include '_partials/flash_messages.html' %}
 <h1>Mark Attendance</h1>
+<div class="container bg-img">
+    <img src={% static 'img/Camera.svg' %} alt="">
+</div>
 <form action="{%url 'mark_attendance'%}" method="POST">
     {% csrf_token%}
     <input

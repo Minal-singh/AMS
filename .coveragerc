@@ -6,3 +6,4 @@ omit=
     */migrations/*
     */__pycache__/*
     */__init__.py
+    manage.py

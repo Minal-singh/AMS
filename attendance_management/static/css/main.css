@@ -32,6 +32,11 @@
 }
 
 /* Table Section */
+table {
+    border-collapse: separate;
+    border-spacing: 0 1em;
+}
+
 .table-section{
     background-color: #d9ecf2;
     color: #666;
@@ -55,19 +60,6 @@ thead{
     background-color: #EBF5FB;
     border-radius: 8px;
 }
-.fa-check,.fa-minus{
-    color: blue;
-}
-.bg-blue:hover{
-    background-color: #3e64ff;
-    color: #eee;
-    cursor: pointer;
-}
-.bg-blue:hover .fa-check,
-.bg-blue:hover .fa-minus{
-    background-color: #3e64ff;
-    color: #eee;
-}
 
 .table thead th,.table td{
     border: none;
@@ -81,9 +73,7 @@ thead{
     border-bottom-right-radius: 10px;
     border-top-right-radius: 10px;
 }
-#spacing-row{
-    height: 10px;
-}
+
 @media(max-width:575px){
     .container{
         width: 100%;

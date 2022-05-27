@@ -14,6 +14,7 @@ import shutil
 import math
 import datetime
 from .models import CustomUser, Attendance, Student
+from .filters import StudentFilter
 from .utils import check_student
 from django.conf import settings
 
@@ -200,7 +201,7 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
                     )
                     pil_image.save(image_path)
                     attendance = Attendance(
-                        user=user.student,
+                        student=user.student,
                         date=today,
                         present=True,
                         path_to_picture=image_path,
@@ -243,38 +244,37 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
 
 def create_dataset(request):
     students_without_dataset_created = Student.objects.filter(dataset_created=False)
-    context = {"students_without_dataset_created": students_without_dataset_created}
+    filter = StudentFilter(request.GET, queryset=students_without_dataset_created)
+    students_without_dataset_created = filter.qs
+    context = {"filter": filter, "students_without_dataset_created": students_without_dataset_created}
     return render(request, "admin_templates/create_dataset.html", context)
 
-
+@require_http_methods(["POST"])
 def create_dataset_for_student(request, id):
-    data = get_object_or_404(Student, user_id=id)
-    context = {"data": data}
-    if request.method == "POST":
-        if check_student(id):
-            success = create_dataset_util(id)
-            if success:
-                user = CustomUser.objects.get(id=id)
-                user.student.dataset_created = True
-                user.student.model_trained = False
-                username = user.first_name + " " + user.last_name
-                user.student.save()
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    f"Dataset created successfully for {username}",
-                )
-            else:
-                if(os.path.exists(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))):
-                    shutil.rmtree(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))
-                messages.add_message(request, messages.ERROR, "Something went wrong...")
+    if check_student(id):
+        success = create_dataset_util(id)
+        if success:
+            user = CustomUser.objects.get(id=id)
+            user.student.dataset_created = True
+            user.student.model_trained = False
+            username = user.first_name + " " + user.last_name
+            user.student.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Dataset created successfully for {username}",
+            )
         else:
-            messages.add_message(request, messages.ERROR, "Student not found!")
-            # if student not found redirect to create dataset page
-            return HttpResponseRedirect(reverse("create_dataset"))
-        # if dataset created or something went wrong redirect to same page to clear post data
-        return HttpResponseRedirect(reverse("create_dataset_for_student", args=[id]))
-    return render(request, "admin_templates/create_dataset_for_student.html", context)
+            if(os.path.exists(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))):
+                shutil.rmtree(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))
+            messages.add_message(request, messages.ERROR, "Something went wrong...")
+    else:
+        messages.add_message(request, messages.ERROR, "Student not found!")
+        # if student not found redirect to students page
+        return HttpResponseRedirect(reverse("students"))
+
+    # if dataset created or something went wrong redirect to same page to clear post data
+    return HttpResponseRedirect(reverse("students", args=[id]))
 
 
 @require_http_methods(["POST"])
@@ -288,14 +288,17 @@ def delete_dataset_for_student(request, id):
         messages.add_message(request, messages.SUCCESS, f"{username}'s dataset deleted!")
     else:
         messages.add_message(request, messages.ERROR, "Student not found!")
-        # if student not found redirect to create dataset page
-        return HttpResponseRedirect(reverse("create_dataset"))
-    return HttpResponseRedirect(reverse("create_dataset_for_student", args=[id]))
+        # if student not found redirect to students page
+        return HttpResponseRedirect(reverse("students"))
 
+    # if dataset created or something went wrong redirect to same page to clear post data
+    return HttpResponseRedirect(reverse("students", args=[id]))
 
 def train_model(request):
     students_without_model_trained = Student.objects.filter(dataset_created=True, model_trained=False)
-    context = {"students_without_model_trained": students_without_model_trained}
+    filter = StudentFilter(request.GET, queryset=students_without_model_trained)
+    students_without_model_trained = filter.qs
+    context = {"filter": filter, "students_without_model_trained": students_without_model_trained}
     if request.method == "POST":
         print("training...")
         success, message = train_model_util()

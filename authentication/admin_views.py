@@ -1,25 +1,22 @@
 from django.shortcuts import get_object_or_404, render, reverse, redirect
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from validate_email import validate_email
 from django.contrib import messages
+import datetime
+import xlwt
 import os
 import shutil
-from .filters import StudentFilter
+from .filters import StudentFilter, AttendanceFilter, StudentAttendanceFilter
 from .utils import validate_session
-from .models import Student, CustomUser
+from .models import Attendance, Student, CustomUser
 from django.conf import settings
 
 BASE_DIR = settings.BASE_DIR
 
 
 def index(request):
-    sessions = Student.objects.values_list("session",flat = True).distinct()
-    student_count_by_session = [Student.objects.filter(session = s).count() for s in sessions]
-    context = {
-        "sessions" : sessions,
-        "student_count_by_session" : student_count_by_session
-    }
-    return render(request, "admin_templates/dashboard.html",context)
+    return render(request, "admin_templates/dashboard.html")
+
 
 def register_student(request):
     if request.GET and request.GET.get("reset", "") == "true":
@@ -113,14 +110,38 @@ def students(request):
     context = {"filter": filter, "students": students}
     return render(request, "admin_templates/students.html", context)
 
-def student_detail(request,id):
-    student = get_object_or_404(Student,user_id = id)
-    context = {"student":student}
-    return render(request,"admin_templates/student_details.html",context)
+
+def student_detail(request, id):
+    student = get_object_or_404(Student, user_id=id)
+    attendance_list = Attendance.objects.filter(student=student)
+    filter = StudentAttendanceFilter(request.GET, queryset=attendance_list)
+    attendance_list = filter.qs
+    present_count = attendance_list.filter(present=True).count()
+    end_date = request.GET.get("date_before", "")
+    if end_date != "":
+        end_date = datetime.date.fromisoformat(end_date)
+    else:
+        end_date = datetime.date.today()
+    start_date = request.GET.get("date_after","")
+    if start_date != "":
+        start_date = datetime.date.fromisoformat(start_date)
+    else:
+        start_date = end_date-datetime.timedelta(days=30)
+    total_days = (end_date - start_date).days
+    absent_count = total_days - present_count
+    context = {
+        "student":student,
+        "attendance_list": attendance_list,
+        "filter": filter,
+        "present_count": present_count,
+        "absent_count": absent_count,
+    }
+    return render(request, "admin_templates/student_details.html", context)
+
 
 def edit_student(request, id):
     if request.GET and request.GET.get("reset", "") == "true":
-        return HttpResponseRedirect(reverse("edit_student",kwargs={'id':id}))
+        return HttpResponseRedirect(reverse("edit_student", kwargs={"id": id}))
     student = Student.objects.get(user_id=id)
     context = {"data": student}
     if request.method == "POST":
@@ -130,7 +151,7 @@ def edit_student(request, id):
         email = request.POST.get("email")
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
-        gender = request.POST.get("gender")
+        gender = request.POST.get("gender", "M")
         profile_pic = request.FILES.get("profile_pic") or None
         roll_no = request.POST.get("roll_no")
         course = request.POST.get("course")
@@ -184,16 +205,16 @@ def edit_student(request, id):
             return render(request, "admin_templates/register.html", context, status=400)
 
         try:
-            user = CustomUser.objects.get(id = student.user_id)
+            user = CustomUser.objects.get(id=student.user_id)
 
             if profile_pic is not None:
-                if os.path.exists(os.path.join(BASE_DIR,f"media/profile_picture/{str(id)}")):
-                    shutil.rmtree(os.path.join(BASE_DIR,f"media/profile_picture/{str(id)}"))
+                if os.path.exists(os.path.join(BASE_DIR, f"media/profile_picture/{str(id)}")):
+                    shutil.rmtree(os.path.join(BASE_DIR, f"media/profile_picture/{str(id)}"))
                 user.profile_pic = profile_pic
 
             if password is not None:
-                    user.set_password(password)
-            
+                user.set_password(password)
+
             user.email = email
             user.first_name = first_name
             user.last_name = last_name
@@ -212,5 +233,52 @@ def edit_student(request, id):
 
     return render(request, "admin_templates/edit_student_details.html", context)
 
+
+def attendance(request):
+    attendance_list = Attendance.objects.all()
+    filter = AttendanceFilter(request.GET, queryset=attendance_list)
+    attendance_list = filter.qs
+    context = {"filter": filter, "attendance_list": attendance_list}
+    if request.GET and request.GET.get("export", "") == "true":
+        response = HttpResponse(content_type="application/ms-excel")
+        response["Content-Disposition"] = "attachment; filename=Attendance" + str(datetime.datetime.now()) + ".xls"
+        wb = xlwt.Workbook(encoding="utf-8")
+        ws = wb.add_sheet("Attendance")
+        row_num = 0
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+        columns = ["First Name", "Last Name", "Email", "Course", "Branch", "Session", "Roll Number", "Date", "Present"]
+        for col_num in range(len(columns)):
+            ws.write(row_num, col_num, columns[col_num], font_style)
+        font_style = xlwt.XFStyle()
+        rows = attendance.values_list(
+            "student__user__first_name",
+            "student__user__last_name",
+            "student__user__email",
+            "student__course",
+            "student__branch",
+            "student__session",
+            "student__roll_no",
+            "date",
+            "present",
+        )
+        for row in rows:
+            row_num += 1
+            for col_num in range(len(row)):
+                ws.write(row_num, col_num, str(row[col_num]), font_style)
+        wb.save(response)
+        return response
+
+    return render(request, "admin_templates/attendance.html", context)
+
+
 def guide(request):
     return render(request, "admin_templates/guide.html")
+
+
+def chart_data(request):
+    sessions = Student.objects.values_list("session", flat=True).distinct()
+    data = {}
+    for session in sessions:
+        data[session] = Student.objects.filter(session=session).count()
+    return JsonResponse({"data": data}, safe=False)

@@ -56,9 +56,14 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.first_name + " " + self.last_name
 
+    def get_profile_pic_directory_path(self,filename):
+        return profile_pic_directory_path(self,filename)
 
 class Admin(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.email
 
 
 class Student(models.Model):
@@ -71,15 +76,21 @@ class Student(models.Model):
     model_trained = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.roll_no
+        return self.user.email
 
 
 class Attendance(models.Model):
-    user = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
     date = models.DateField(default=datetime.date.today)
     # path to picture used to mark attendance
-    path_to_picture = models.CharField(max_length=256, null=True, blank=True)
+    path_to_picture = models.CharField(max_length=1000, null=True, blank=True)
     present = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.date)
+
+    class Meta:
+        ordering = ["-date"]
 
 
 @receiver(post_save, sender=CustomUser)
