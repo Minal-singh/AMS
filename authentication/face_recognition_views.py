@@ -15,7 +15,6 @@ import math
 import datetime
 from .models import CustomUser, Attendance, Student
 from .filters import StudentFilter
-from .utils import check_student
 from django.conf import settings
 
 BASE_DIR = settings.BASE_DIR
@@ -25,14 +24,11 @@ DISTANCE_THRESHOLD = 0.5
 
 # UTILITY FUNCTIONS
 
-def create_dataset_util(id, camera=0):
-    if os.path.exists(MODEL_DATA_PATH + "dataset/") is False:
-        os.makedirs(MODEL_DATA_PATH + "dataset/")
-    dataset_dir = MODEL_DATA_PATH + "dataset/"
 
-    if os.path.exists(dataset_dir + str(id)) is False:
-        os.makedirs(dataset_dir + str(id))
-    directory = dataset_dir + str(id)
+def create_dataset_util(id, camera=0):
+    dataset_dir = os.path.join(MODEL_DATA_PATH, "dataset/")
+
+    directory = os.path.join(dataset_dir, str(id))
 
     video = cv2.VideoCapture(camera)
 
@@ -59,6 +55,9 @@ def create_dataset_util(id, camera=0):
         face_bounding_boxes = face_recognition.face_locations(rgb_small_frame, model=MODEL)
 
         if invalid_frames_count > 100:
+            if valid_frames_count > 100:
+                success = True
+                break
             success = False
             break
 
@@ -95,8 +94,8 @@ def create_dataset_util(id, camera=0):
 def train_model_util():
     X = []
     y = []
-    train_dir = MODEL_DATA_PATH + "dataset/"
-    if os.path.exists(train_dir) and len(os.listdir(train_dir)) == 0:
+    train_dir = os.path.join(MODEL_DATA_PATH, "dataset/")
+    if len(os.listdir(train_dir)) == 0:
         return False, {"message": "No dataset found to create model"}
 
     model_trained_for = []
@@ -141,15 +140,14 @@ def train_model_util():
         pickle.dump(knn_clf, f)
 
     for id in model_trained_for:
-        if check_student(id):
-            user = CustomUser.objects.get(id=id)
-            user.student.model_trained = True
-            user.student.save()
+        student = get_object_or_404(Student, user_id=id)
+        student.model_trained = True
+        student.save()
     return True, {"message": "Model trained successfully"}
 
 
 def predict(X_frame):
-    model_path = MODEL_DATA_PATH + "trained_knn_model.clf"
+    model_path = os.path.join(MODEL_DATA_PATH, "trained_knn_model.clf")
     try:
         with open(model_path, "rb") as f:
             knn_clf = pickle.load(f)
@@ -249,50 +247,39 @@ def create_dataset(request):
     context = {"filter": filter, "students_without_dataset_created": students_without_dataset_created}
     return render(request, "admin_templates/create_dataset.html", context)
 
+
 @require_http_methods(["POST"])
 def create_dataset_for_student(request, id):
-    if check_student(id):
-        success = create_dataset_util(id)
-        if success:
-            user = CustomUser.objects.get(id=id)
-            user.student.dataset_created = True
-            user.student.model_trained = False
-            username = user.first_name + " " + user.last_name
-            user.student.save()
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                f"Dataset created successfully for {username}",
-            )
-        else:
-            if(os.path.exists(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))):
-                shutil.rmtree(os.path.join(MODEL_DATA_PATH,f"dataset/{str(id)}"))
-            messages.add_message(request, messages.ERROR, "Something went wrong...")
+    student = get_object_or_404(Student, user_id=id)
+    success = create_dataset_util(id)
+    if success:
+        student.dataset_created = True
+        student.model_trained = False
+        username = student.user.first_name + " " + student.user.last_name
+        student.save()
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            f"Dataset created successfully for {username}",
+        )
     else:
-        messages.add_message(request, messages.ERROR, "Student not found!")
-        # if student not found redirect to students page
-        return HttpResponseRedirect(reverse("students"))
+        if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
+            shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
+        messages.add_message(request, messages.ERROR, "Something went wrong...")
 
-    # if dataset created or something went wrong redirect to same page to clear post data
     return HttpResponseRedirect(reverse("students", args=[id]))
 
 
 @require_http_methods(["POST"])
 def delete_dataset_for_student(request, id):
-    if check_student(id):
-        user = Student.objects.get(user_id=id)
-        username = user.student.first_name + " " + user.student.last_name
-        user.dataset_created = False
-        user.model_trained = False
-        user.save()
-        messages.add_message(request, messages.SUCCESS, f"{username}'s dataset deleted!")
-    else:
-        messages.add_message(request, messages.ERROR, "Student not found!")
-        # if student not found redirect to students page
-        return HttpResponseRedirect(reverse("students"))
-
-    # if dataset created or something went wrong redirect to same page to clear post data
+    student = get_object_or_404(Student, user_id=id)
+    username = student.user.first_name + " " + student.user.last_name
+    student.dataset_created = False
+    student.model_trained = False
+    student.save()
+    messages.add_message(request, messages.SUCCESS, f"{username}'s dataset deleted!")
     return HttpResponseRedirect(reverse("students", args=[id]))
+
 
 def train_model(request):
     students_without_model_trained = Student.objects.filter(dataset_created=True, model_trained=False)
@@ -347,11 +334,11 @@ def mark_attendance(request):
         return HttpResponseRedirect(reverse("mark_attendance"))
     return render(request, "admin_templates/mark_attendance.html")
 
+
 @require_http_methods(["POST"])
 def delete_attendance_photos(request):
-    if os.path.exists(os.path.join(BASE_DIR,"attendance_pic")):
-        shutil.rmtree(os.path.join(BASE_DIR,"attendance_pic"))
-    Attendance.objects.all().update(path_to_picture = None)
-    messages.add_message(request,messages.SUCCESS,"Successfully deleted all pictures used to mark attendance.")
+    if os.path.exists(os.path.join(BASE_DIR, "attendance_pic")):
+        shutil.rmtree(os.path.join(BASE_DIR, "attendance_pic"))
+    Attendance.objects.all().update(path_to_picture=None)
+    messages.add_message(request, messages.SUCCESS, "Successfully deleted all pictures used to mark attendance.")
     return HttpResponseRedirect(reverse("students"))
-    

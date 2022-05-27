@@ -7,3 +7,5 @@ omit=
     */__pycache__/*
     */__init__.py
     manage.py
+    authentication\face_recognition_views.py
+    authentication\middleware.py

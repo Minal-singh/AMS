@@ -122,15 +122,15 @@ def student_detail(request, id):
         end_date = datetime.date.fromisoformat(end_date)
     else:
         end_date = datetime.date.today()
-    start_date = request.GET.get("date_after","")
+    start_date = request.GET.get("date_after", "")
     if start_date != "":
         start_date = datetime.date.fromisoformat(start_date)
     else:
-        start_date = end_date-datetime.timedelta(days=30)
+        start_date = end_date - datetime.timedelta(days=30)
     total_days = (end_date - start_date).days
     absent_count = total_days - present_count
     context = {
-        "student":student,
+        "student": student,
         "attendance_list": attendance_list,
         "filter": filter,
         "present_count": present_count,
