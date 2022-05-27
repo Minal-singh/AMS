@@ -5,8 +5,9 @@ Students
 {% endblock title %} 
 {% block content %}
 
-
 <div class="container mt-2">
+<div class="card bg-light">
+    <div class="card-body">
 <form method="GET">
     <div class="row px-lg-5 px-md-3">
         {% for field in filter.form %}
@@ -19,7 +20,7 @@ Students
         <input class="btn btn-primary mt-2" type="submit" value="Filter" />
     </div>
 </form>
-
+<hr>
 <section class="table-section">
     <div class="container mt-0 pt-0 rounded bg-white px-md-5">
     <div class="table-responsive">
@@ -70,6 +71,8 @@ Students
     </div>
 </div>
 </section>
+</div>
+</div>
 </div>
 
 {% endblock content %}

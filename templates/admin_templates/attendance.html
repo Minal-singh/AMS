@@ -7,31 +7,34 @@ Attendance
 
 <div class="container">
     <a href="?export=true">
-        <button class="btn btn-danger float-end">Export Excel</button>
+        <button class="btn btn-dark float-end mb-2">Export Excel</button>
     </a>
-    <form method="GET" autocomplete="off">
-    <div class="row px-lg-5 px-md-3">
-        {% for field in filter.form %}
-        {% if field.id_for_label != "id_date_0" %}
-        <div class="col-md-4 col-sm-12">
-            <b>{{field.label_tag}}</b> {{field}}
-        </div>
-        {% endif %}
-        {% endfor %}
-        <div class="d-flex flex-row justify-content-start mt-3">
-            <div class="d-flex flex-row input-group input-daterange">
-            {% for field in filter.form %}
-            {% if field.id_for_label == "id_date_0" %}
-            <div>
-                <b>{{field.label_tag}}</b> {{field}}
-            </div>
-            {% endif %}
-            {% endfor %}
-            </div>
-            <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-        </div>
-    </div>
-    </form>
+    <div class="card bg-light w-100 b-0">
+        <div class="card-body">
+            <form method="GET" autocomplete="off">
+                <div class="row px-lg-5 px-md-3">
+                    {% for field in filter.form %}
+                    {% if field.id_for_label != "id_date_0" %}
+                    <div class="col-md-4 col-sm-12">
+                        <b>{{field.label_tag}}</b> {{field}}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="d-flex mt-3">
+                        <div class="d-flex flex-row input-group input-daterange">
+                        {% for field in filter.form %}
+                        {% if field.id_for_label == "id_date_0" %}
+                        <div>
+                            <b>{{field.label_tag}}</b> {{field}}
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-dark">Filter</button>
+                    </div>
+                </div>
+            </form>
+            <hr>
     <section class="table-section">
     <div class="container mt-0 pt-0 rounded bg-white px-md-5">
     <div class="table-responsive">
@@ -50,7 +53,9 @@ Attendance
                 <th data-visible="false" data-sortable="true" data-field="branch">Branch</th>
                 <th data-visible="false" data-sortable="true" data-field="session">Session</th>
                 <th data-sortable="true" class="text-center" data-field="roll_no">Roll Number</th>
-                <th data-sortable="true" data-switchable="false" class="text-center" data-field="action">Date</th>
+                <th data-sortable="true" data-switchable="false" class="text-center" data-field="date">Date</th>
+                <th data-sortable="true" class="text-center" data-field="present">Present</th>
+                <th class="text-center" data-field="photo">Photo</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,6 +77,20 @@ Attendance
                     <td class="pt-3 mt-1">{{attendance.student.session}}</td>
                     <td class="pt-3 text-center">{{attendance.student.roll_no}}</td>
                     <td class="pt-3 text-center">{{attendance.date}}</td>
+                    <td class="pt-3 text-center">
+                      {% if attendance.present %}
+                      <i class="fa-solid fa-check"></i>
+                      {% else %}
+                      <i class="fa-solid fa-xmark"></i>
+                      {% endif %}
+                    </td>
+                    <td class="pt-3 text-center">
+                      {% if attendance.path_to_picture %}
+                      <a href="{{attendance.path_to_picture}}"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+                      {% else %}
+                      <i class="fa-solid fa-minus"></i>
+                      {% endif %}
+                    </td>
                 </tr>
 
                 {% endfor %}
@@ -80,6 +99,8 @@ Attendance
         </div>
     </div>
     </section>
+    </div>
+    </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function () {

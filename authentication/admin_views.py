@@ -15,7 +15,16 @@ BASE_DIR = settings.BASE_DIR
 
 
 def index(request):
-    return render(request, "admin_templates/dashboard.html")
+    today = datetime.date.today()
+    total_students = Student.objects.all().count()
+    present_students = Attendance.objects.filter(date=today, present=True).count()
+    absent_students = total_students - present_students
+    context = {
+        "total_students": total_students,
+        "present_students": present_students,
+        "absent_students": absent_students,
+    }
+    return render(request, "admin_templates/dashboard.html", context)
 
 
 def register_student(request):
@@ -113,7 +122,7 @@ def students(request):
 
 def student_detail(request, id):
     student = get_object_or_404(Student, user_id=id)
-    attendance_list = Attendance.objects.filter(student=student)
+    attendance_list = Attendance.objects.filter(student=student).exclude(date__week_day__in=[1])
     filter = StudentAttendanceFilter(request.GET, queryset=attendance_list)
     attendance_list = filter.qs
     present_count = attendance_list.filter(present=True).count()
@@ -126,8 +135,8 @@ def student_detail(request, id):
     if start_date != "":
         start_date = datetime.date.fromisoformat(start_date)
     else:
-        start_date = end_date - datetime.timedelta(days=30)
-    total_days = (end_date - start_date).days
+        start_date = datetime.date.fromisoformat("2022-01-02")
+    total_days = (end_date - start_date).days + 1
     absent_count = total_days - present_count
     context = {
         "student": student,
@@ -235,7 +244,7 @@ def edit_student(request, id):
 
 
 def attendance(request):
-    attendance_list = Attendance.objects.all()
+    attendance_list = Attendance.objects.all().exclude(date__week_day__in=[1])
     filter = AttendanceFilter(request.GET, queryset=attendance_list)
     attendance_list = filter.qs
     context = {"filter": filter, "attendance_list": attendance_list}
@@ -251,7 +260,7 @@ def attendance(request):
         for col_num in range(len(columns)):
             ws.write(row_num, col_num, columns[col_num], font_style)
         font_style = xlwt.XFStyle()
-        rows = attendance.values_list(
+        rows = attendance_list.values_list(
             "student__user__first_name",
             "student__user__last_name",
             "student__user__email",

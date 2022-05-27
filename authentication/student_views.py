@@ -15,7 +15,7 @@ def index(request):
 
 def student_attendance(request):
     student = get_object_or_404(Student, user=request.user)
-    attendance_list = Attendance.objects.filter(student=student)
+    attendance_list = Attendance.objects.filter(student=student).exclude(date__week_day__in=[1])
     filter = StudentAttendanceFilter(request.GET, queryset=attendance_list)
     attendance_list = filter.qs
     present_count = attendance_list.filter(present=True).count()
@@ -28,9 +28,10 @@ def student_attendance(request):
     if start_date != "":
         start_date = datetime.date.fromisoformat(start_date)
     else:
-        start_date = end_date - datetime.timedelta(days=30)
-    total_days = (end_date - start_date).days
+        start_date = datetime.date.fromisoformat("2022-01-02")
+    total_days = (end_date - start_date).days + 1
     absent_count = total_days - present_count
+    print(total_days,present_count,absent_count)
     context = {
         "attendance_list": attendance_list,
         "filter": filter,

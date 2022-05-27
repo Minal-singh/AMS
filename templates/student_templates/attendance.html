@@ -4,29 +4,26 @@
 
 {% block content %}
 
-<div class="container mt-3">
-  <div class="card">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-lg-6 col-md-12">
-          <div class="container">
-            <form method="GET" autocomplete="off">
-              <div class="d-flex flex-row mt-2">
-                <div class="d-flex flex-row input-group input-daterange">
-                  {% for field in filter.form %}
-                  <div><b>{{field.label_tag}}</b> {{field}}</div>
-                  {% endfor %}
-                </div>
-                <button type="submit" class="btn btn-dark btn-sm">
-                  Filter
-                </button>
-              </div>
-            </form>
+<div class="container bg-light mt-3">
+  <div class="row d-flex justify-content-around">
+    <div class="col-lg-6 col-md-12 card ml-4 my-3">
+      <div class="card-body">
+      <div class="container">
+        <form method="GET" autocomplete="off">
+          <div class="mt-2">
+            <div class="d-flex flex-row input-group input-daterange">
+              {% for field in filter.form %}
+              <div><b>{{field.label_tag}}</b> {{field}}</div>
+              {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-dark mt-2">Filter</button>
           </div>
-          <div class="container">
-            <section class="table-section">
-              <div class="container mt-0 pt-0 rounded bg-white px-md-5">
-                <div class="table-responsive">
+        </form>
+      </div>
+      <div class="container">
+        <section class="table-section">
+          <div class="container mt-0 pt-0 rounded bg-white px-md-5">
+            <div class="table-responsive">
                   <table
                     class="table"
                     id="table"
@@ -70,14 +67,15 @@
                       {% endfor %}
                     </tbody>
                   </table>
-                </div>
-              </div>
-            </section>
+            </div>
           </div>
-        </div>
-        <div class="col-lg-4 col-md-8 col-sm-12 p-lg-5 p-md-3">
-          <canvas id="myChart" width="100" height="100"></canvas>
-        </div>
+        </section>
+      </div>
+      </div>
+    </div>
+    <div class="col-lg-5 col-md-8 col-sm-12 p-lg-5 p-md-3 card my-3">
+      <div class="card-body">
+        <canvas id="myChart" width="100" height="100"></canvas>
       </div>
     </div>
   </div>
@@ -100,12 +98,23 @@
             label: 'Attendance',
             data: [ {{present_count}},{{absent_count}} ],
             backgroundColor: [
-              'rgb(0,255,0)',
-              'rgb(255,0,0)'
+              'rgb(80,216,46)',
+              'rgb(255, 99, 132)'
             ],
             hoverOffset: 4
         }],
+        },
+    options: {
+        plugins: {
+            title: {
+                display: true,
+                text: 'Attendance',
+                font: {
+                    size: 16
+                }
+            }
         }
+    }
     });
 </script>
 

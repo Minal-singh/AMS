@@ -16,12 +16,12 @@ const renderChart = (data, labels) => {
           label: "Students",
           data: data,
           backgroundColor: [
-            "rgba(255, 99, 132, 0.2)",
-            "rgba(54, 162, 235, 0.2)",
-            "rgba(255, 206, 86, 0.2)",
-            "rgba(75, 192, 192, 0.2)",
-            "rgba(153, 102, 255, 0.2)",
-            "rgba(255, 159, 64, 0.2)",
+            "rgb(255, 99, 132)",
+            "rgb(54, 162, 235)",
+            "rgb(255, 206, 86)",
+            "rgb(75, 192, 192)",
+            "rgb(153, 102, 255)",
+            "rgb(255, 159, 64)",
           ],
           borderColor: [
             "rgba(255, 99, 132, 1)",
@@ -35,15 +35,20 @@ const renderChart = (data, labels) => {
         },
       ],
     },
-      options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
         },
+      },
+      plugins: {
         title: {
-            display: true,
-            text: "Expenses per category",
+          display: true,
+          text: "Students per session",
+          font: {
+            size: 16,
+          },
+        },
       },
     },
   });
