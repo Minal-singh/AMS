@@ -179,7 +179,6 @@
                     <th class="text-center" data-sortable="true" data-field="present">
                       Present
                     </th>
-                    <th class="text-center" data-field="photo">Photo</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -193,13 +192,6 @@
                       <i class="fa-solid fa-check"></i>
                       {% else %}
                       <i class="fa-solid fa-xmark"></i>
-                      {% endif %}
-                    </td>
-                    <td class="pt-3 text-center">
-                      {% if attendance.path_to_picture %}
-                      <a href="{{attendance.path_to_picture}}"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                      {% else %}
-                      <i class="fa-solid fa-minus"></i>
                       {% endif %}
                     </td>
                   </tr>
