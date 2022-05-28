@@ -1,3 +1,10 @@
+$(window).on("load", function () {
+  $("#loading").hide();
+});
+$(window).on("beforeunload", function () {
+  $("#loading").show();
+});
+
 var menu_btn = document.querySelector("#menu-btn");
 var sidebar = document.querySelector("#sidebar");
 var container = document.querySelector(".my-container");

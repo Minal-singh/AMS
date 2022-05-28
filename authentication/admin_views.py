@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from validate_email import validate_email
-from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 import datetime
 import xlwt
@@ -244,15 +243,15 @@ def edit_student(request, id):
     return render(request, "admin_templates/edit_student_details.html", context)
 
 
-@require_http_methods(["POST"])
 def delete_student(request, id):
-    student = get_object_or_404(Student, user_id=id)
-    if os.path.exists(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}")):
-        shutil.rmtree(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}"))
-    student.delete()
-    user = get_object_or_404(CustomUser, id=id)
-    user.delete()
-    messages.add_message(request, messages.SUCCESS, "Deleted successfully.")
+    if request.method == "POST":
+        student = get_object_or_404(Student, user_id=id)
+        if os.path.exists(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}")):
+            shutil.rmtree(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}"))
+        student.delete()
+        user = get_object_or_404(CustomUser, id=id)
+        user.delete()
+        messages.add_message(request, messages.SUCCESS, "Deleted successfully.")
     return HttpResponseRedirect(reverse(students))
 
 
@@ -298,9 +297,23 @@ def guide(request):
     return render(request, "admin_templates/guide.html")
 
 
-def chart_data(request):
-    sessions = Student.objects.values_list("session", flat=True).distinct()
+def chart_data1(request):
+    sessions = Student.objects.values_list("session", flat=True).order_by("session").distinct()
     data = {}
     for session in sessions:
         data[session] = Student.objects.filter(session=session).count()
+    return JsonResponse({"data": data}, safe=False)
+
+def chart_data2(request):
+    branches = Student.objects.values_list("branch", flat=True).distinct()
+    data = {}
+    for branch in branches:
+        data[branch] = Student.objects.filter(branch=branch).count()
+    return JsonResponse({"data": data}, safe=False)
+
+def chart_data3(request):
+    courses = Student.objects.values_list("course", flat=True).distinct()
+    data = {}
+    for course in courses:
+        data[course] = Student.objects.filter(course=course).count()
     return JsonResponse({"data": data}, safe=False)

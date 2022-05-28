@@ -17,7 +17,7 @@
             <div class="d-flex flex-column align-items-center text-center">
               {% if student.user.profile_pic %}
               <img
-                src="{% static student.user.profile_pic.url %}"
+                src="{{ student.user.profile_pic.url }}"
                 alt="Admin"
                 class="rounded-circle"
                 width="150"

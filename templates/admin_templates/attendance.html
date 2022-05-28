@@ -55,7 +55,6 @@ Attendance
                 <th data-sortable="true" class="text-center" data-field="roll_no">Roll Number</th>
                 <th data-sortable="true" data-switchable="false" class="text-center" data-field="date">Date</th>
                 <th data-sortable="true" class="text-center" data-field="present">Present</th>
-                <th class="text-center" data-field="photo">Photo</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,7 +63,7 @@ Attendance
                 <tr class="bg-blue"> 
                     <td class="pt-2">
                     {% if attendance.student.user.profile_pic %}
-                    <img src={% static "attendance.student.user.profile_pic.url" %} class="rounded-circle table-img" alt="">
+                    <img src="{{attendance.student.user.profile_pic.url}}" class="rounded-circle table-img" alt="" />
                     {% elif attendance.student.user.gender == "M" %}
                     <img src={% static "img/male.png" %} class="rounded-circle table-img" alt="">
                     {% else %}
@@ -82,13 +81,6 @@ Attendance
                       <i class="fa-solid fa-check"></i>
                       {% else %}
                       <i class="fa-solid fa-xmark"></i>
-                      {% endif %}
-                    </td>
-                    <td class="pt-3 text-center">
-                      {% if attendance.path_to_picture %}
-                      <a href="{{attendance.path_to_picture}}"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
-                      {% else %}
-                      <i class="fa-solid fa-minus"></i>
                       {% endif %}
                     </td>
                 </tr>

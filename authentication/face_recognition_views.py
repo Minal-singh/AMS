@@ -1,6 +1,5 @@
 from django.shortcuts import render, reverse, get_object_or_404
 from django.http import HttpResponseRedirect
-from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 import face_recognition
 from face_recognition.face_recognition_cli import image_files_in_folder
@@ -20,7 +19,7 @@ from django.conf import settings
 BASE_DIR = settings.BASE_DIR
 MODEL_DATA_PATH = os.path.join(BASE_DIR, "media/model_data/")
 MODEL = "hog"
-DISTANCE_THRESHOLD = 0.35
+DISTANCE_THRESHOLD = 0.4
 
 # UTILITY FUNCTIONS
 
@@ -59,7 +58,7 @@ def create_dataset_util(id, camera=0):
         face_bounding_boxes = face_recognition.face_locations(rgb_small_frame, model=MODEL)
 
         if invalid_frames_count > 500:
-            if valid_frames_count > 250:
+            if valid_frames_count > 180:
                 success = True
                 break
             success = False
@@ -85,7 +84,7 @@ def create_dataset_util(id, camera=0):
         cv2.imshow("camera", frame)
         cv2.waitKey(1)
         # To get out of the loop
-        if valid_frames_count > 300:
+        if valid_frames_count > 200:
             success = True
             break
     # Stoping the videostream
@@ -184,9 +183,7 @@ def predict(X_frame):
 def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_students):
     pil_image = Image.fromarray(frame)
     draw = ImageDraw.Draw(pil_image)
-
     for id, (top, right, bottom, left) in predictions:
-        # enlarge the predictions for the full sized image.
         if id != "unknown":
             if id in attendance_marked_for_students.keys():
                 name = attendance_marked_for_students[id]
@@ -196,19 +193,14 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
                 name = user.first_name + " " + user.last_name
                 attendance_marked_for_students[id] = name
                 try:
-                    query = Attendance.objects.get(user_id=user.student.id, date=today)
+                    query = Attendance.objects.get(student=user.student, date=today)
                 except Exception:
                     query = None
                 if query is None:
-                    if not os.path.exists(os.path.join(BASE_DIR, f"media/attendance_pic/{str(user.id)}/")):
-                        os.makedirs(os.path.join(BASE_DIR, f"media/attendance_pic/{str(user.id)}/"))
-                    image_path = os.path.join(BASE_DIR, f"media/attendance_pic/{str(user.id)}/")
-                    pil_image.save(image_path + "/" + str(user.id) + ".jpg")
                     attendance = Attendance(
                         student=user.student,
                         date=today,
                         present=True,
-                        path_to_picture=image_path,
                     )
                     attendance.save()
                 else:
@@ -216,6 +208,7 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
                     query.save()
         else:
             name = id
+        # enlarge the predictions for the full sized image.
         top *= 4
         right *= 4
         bottom *= 4
@@ -254,38 +247,37 @@ def create_dataset(request):
     return render(request, "admin_templates/create_dataset.html", context)
 
 
-@require_http_methods(["POST"])
 def create_dataset_for_student(request, id):
-    student = get_object_or_404(Student, user_id=id)
-    success = create_dataset_util(id)
-    if success:
-        student.dataset_created = True
-        student.model_trained = False
-        username = student.user.first_name + " " + student.user.last_name
-        student.save()
-        messages.add_message(
-            request,
-            messages.SUCCESS,
-            f"Dataset created successfully for {username}",
-        )
-    else:
-        if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
-            shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
-        messages.add_message(request, messages.ERROR, "Something went wrong...")
-
+    if request.method == "POST":
+        student = get_object_or_404(Student, user_id=id)
+        success = create_dataset_util(id)
+        if success:
+            student.dataset_created = True
+            student.model_trained = False
+            username = student.user.first_name + " " + student.user.last_name
+            student.save()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Dataset created successfully for {username}",
+            )
+        else:
+            if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
+                shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
+            messages.add_message(request, messages.ERROR, "Something went wrong...")
     return HttpResponseRedirect(reverse("student_detail", kwargs={"id": id}))
 
 
-@require_http_methods(["POST"])
 def delete_dataset_for_student(request, id):
-    student = get_object_or_404(Student, user_id=id)
-    if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
-        shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
-    username = student.user.first_name + " " + student.user.last_name
-    student.dataset_created = False
-    student.model_trained = False
-    student.save()
-    messages.add_message(request, messages.SUCCESS, f"{username}'s dataset deleted!")
+    if request.method == "POST":
+        student = get_object_or_404(Student, user_id=id)
+        if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
+            shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
+        username = student.user.first_name + " " + student.user.last_name
+        student.dataset_created = False
+        student.model_trained = False
+        student.save()
+        messages.add_message(request, messages.SUCCESS, f"{username}'s dataset deleted!")
     return HttpResponseRedirect(reverse("student_detail", kwargs={"id": id}))
 
 
@@ -341,12 +333,3 @@ def mark_attendance(request):
         cv2.destroyAllWindows()
         return HttpResponseRedirect(reverse("mark_attendance"))
     return render(request, "admin_templates/mark_attendance.html")
-
-
-@require_http_methods(["POST"])
-def delete_attendance_photos(request):
-    if os.path.exists(os.path.join(BASE_DIR, "attendance_pic")):
-        shutil.rmtree(os.path.join(BASE_DIR, "attendance_pic"))
-    Attendance.objects.all().update(path_to_picture=None)
-    messages.add_message(request, messages.SUCCESS, "Successfully deleted all pictures used to mark attendance.")
-    return HttpResponseRedirect(reverse("students"))

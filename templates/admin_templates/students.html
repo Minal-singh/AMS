@@ -49,7 +49,7 @@ Students
             <tr class="bg-blue"> 
                 <td class="pt-2">
                 {% if student.user.profile_pic %}
-                <img src={% static "student.user.profile_pic.url" %} class="rounded-circle table-img" alt="">
+                <img src="{{ student.user.profile_pic.url }}" class="rounded-circle table-img" alt="">
                 {% elif student.user.gender == "M" %}
                 <img src={% static "img/male.png" %} class="rounded-circle table-img" alt="">
                 {% else %}

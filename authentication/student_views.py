@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404, reverse
 from django.http import HttpResponseRedirect
-from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 from .models import Student, Attendance
 from .filters import StudentAttendanceFilter
@@ -41,31 +40,31 @@ def student_attendance(request):
     return render(request, "student_templates/attendance.html", context)
 
 
-@require_http_methods(["POST"])
 def change_password(request):
-    student = get_object_or_404(Student, user=request.user)
-    old_password = request.POST.get("old_password")
-    password = request.POST.get("password")
-    password2 = request.POST.get("password2")
+    if request.method == "POST":
+        student = get_object_or_404(Student, user=request.user)
+        old_password = request.POST.get("old_password")
+        password = request.POST.get("password")
+        password2 = request.POST.get("password2")
 
-    if not student.user.check_password(old_password):
-        messages.add_message(request, messages.ERROR, "Please enter correct password")
-        return HttpResponseRedirect(reverse("student_home"))
+        if not student.user.check_password(old_password):
+            messages.add_message(request, messages.ERROR, "Please enter correct password")
+            return HttpResponseRedirect(reverse("student_home"))
 
-    if len(password) < 6:
-        messages.add_message(request, messages.ERROR, "New password should be atleast 6 characters long")
-        return HttpResponseRedirect(reverse("student_home"))
+        if len(password) < 6:
+            messages.add_message(request, messages.ERROR, "New password should be atleast 6 characters long")
+            return HttpResponseRedirect(reverse("student_home"))
 
-    if password != password2:
-        messages.add_message(request, messages.ERROR, "Passwords dont match")
-        return HttpResponseRedirect(reverse("student_home"))
+        if password != password2:
+            messages.add_message(request, messages.ERROR, "Passwords dont match")
+            return HttpResponseRedirect(reverse("student_home"))
 
-    try:
-        student.user.set_password(password)
-        student.user.save()
-        messages.add_message(request, messages.SUCCESS, "Password Updated successfully, login to continue")
-        return HttpResponseRedirect(reverse("login"))
-    except Exception as e:
-        messages.add_message(request, messages.ERROR, "Could not change: " + str(e))
+        try:
+            student.user.set_password(password)
+            student.user.save()
+            messages.add_message(request, messages.SUCCESS, "Password Updated successfully, login to continue")
+            return HttpResponseRedirect(reverse("login"))
+        except Exception as e:
+            messages.add_message(request, messages.ERROR, "Could not change: " + str(e))
 
     return HttpResponseRedirect(reverse("student_home"))
