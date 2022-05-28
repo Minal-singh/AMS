@@ -13,6 +13,7 @@ urlpatterns = [
     path("admin/students/<str:id>", admin_views.student_detail, name="student_detail"),
     path("admin/register-student/", admin_views.register_student, name="register_student"),
     path("admin/edit-student/<str:id>/", admin_views.edit_student, name="edit_student"),
+    path("admin/delete-student/<str:id>/", admin_views.delete_student, name="delete_student"),
     path("admin/guide/", admin_views.guide, name="guide"),
     # face_recognition
     path(

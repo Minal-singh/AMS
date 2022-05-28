@@ -20,14 +20,18 @@ from django.conf import settings
 BASE_DIR = settings.BASE_DIR
 MODEL_DATA_PATH = os.path.join(BASE_DIR, "media/model_data/")
 MODEL = "hog"
-DISTANCE_THRESHOLD = 0.5
+DISTANCE_THRESHOLD = 0.35
 
 # UTILITY FUNCTIONS
 
 
 def create_dataset_util(id, camera=0):
+    if not os.path.exists(os.path.join(MODEL_DATA_PATH, "dataset/")):
+        os.makedirs(os.path.join(MODEL_DATA_PATH, "dataset/"))
     dataset_dir = os.path.join(MODEL_DATA_PATH, "dataset/")
 
+    if not os.path.exists(os.path.join(dataset_dir, str(id))):
+        os.makedirs(os.path.join(dataset_dir, str(id)))
     directory = os.path.join(dataset_dir, str(id))
 
     video = cv2.VideoCapture(camera)
@@ -54,8 +58,8 @@ def create_dataset_util(id, camera=0):
 
         face_bounding_boxes = face_recognition.face_locations(rgb_small_frame, model=MODEL)
 
-        if invalid_frames_count > 100:
-            if valid_frames_count > 100:
+        if invalid_frames_count > 500:
+            if valid_frames_count > 250:
                 success = True
                 break
             success = False
@@ -81,7 +85,7 @@ def create_dataset_util(id, camera=0):
         cv2.imshow("camera", frame)
         cv2.waitKey(1)
         # To get out of the loop
-        if valid_frames_count > 120:
+        if valid_frames_count > 300:
             success = True
             break
     # Stoping the videostream
@@ -94,7 +98,10 @@ def create_dataset_util(id, camera=0):
 def train_model_util():
     X = []
     y = []
+    if not os.path.exists(os.path.join(MODEL_DATA_PATH, "dataset/")):
+        os.makedirs(os.path.join(MODEL_DATA_PATH, "dataset/"))
     train_dir = os.path.join(MODEL_DATA_PATH, "dataset/")
+
     if len(os.listdir(train_dir)) == 0:
         return False, {"message": "No dataset found to create model"}
 
@@ -193,11 +200,10 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
                 except Exception:
                     query = None
                 if query is None:
-                    image_path = os.path.join(
-                        BASE_DIR,
-                        f"media/attendance_pic/{str(user.id)}/{str(today)}.jpg",
-                    )
-                    pil_image.save(image_path)
+                    if not os.path.exists(os.path.join(BASE_DIR, f"media/attendance_pic/{str(user.id)}/")):
+                        os.makedirs(os.path.join(BASE_DIR, f"media/attendance_pic/{str(user.id)}/"))
+                    image_path = os.path.join(BASE_DIR, f"media/attendance_pic/{str(user.id)}/")
+                    pil_image.save(image_path + "/" + str(user.id) + ".jpg")
                     attendance = Attendance(
                         student=user.student,
                         date=today,
@@ -267,18 +273,20 @@ def create_dataset_for_student(request, id):
             shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
         messages.add_message(request, messages.ERROR, "Something went wrong...")
 
-    return HttpResponseRedirect(reverse("students", args=[id]))
+    return HttpResponseRedirect(reverse("student_detail", kwargs={"id": id}))
 
 
 @require_http_methods(["POST"])
 def delete_dataset_for_student(request, id):
     student = get_object_or_404(Student, user_id=id)
+    if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
+        shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
     username = student.user.first_name + " " + student.user.last_name
     student.dataset_created = False
     student.model_trained = False
     student.save()
     messages.add_message(request, messages.SUCCESS, f"{username}'s dataset deleted!")
-    return HttpResponseRedirect(reverse("students", args=[id]))
+    return HttpResponseRedirect(reverse("student_detail", kwargs={"id": id}))
 
 
 def train_model(request):

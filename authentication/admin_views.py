@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from validate_email import validate_email
+from django.views.decorators.http import require_http_methods
 from django.contrib import messages
 import datetime
 import xlwt
@@ -37,7 +38,7 @@ def register_student(request):
         email = request.POST.get("email")
         first_name = request.POST.get("first_name")
         last_name = request.POST.get("last_name")
-        gender = request.POST.get("gender")
+        gender = request.POST.get("gender", "M")
         profile_pic = request.FILES.get("profile_pic", None)
         roll_no = request.POST.get("roll_no")
         course = request.POST.get("course")
@@ -241,6 +242,18 @@ def edit_student(request, id):
             messages.add_message(request, messages.ERROR, "Could not add: " + str(e))
 
     return render(request, "admin_templates/edit_student_details.html", context)
+
+
+@require_http_methods(["POST"])
+def delete_student(request, id):
+    student = get_object_or_404(Student, user_id=id)
+    if os.path.exists(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}")):
+        shutil.rmtree(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}"))
+    student.delete()
+    user = get_object_or_404(CustomUser, id=id)
+    user.delete()
+    messages.add_message(request, messages.SUCCESS, "Deleted successfully.")
+    return HttpResponseRedirect(reverse(students))
 
 
 def attendance(request):

@@ -17,10 +17,7 @@
             <div class="d-flex flex-column align-items-center text-center">
               {% if student.user.profile_pic %}
               <img
-                src="{%"
-                static
-                student.user.profile_pic.url
-                %}
+                src="{% static student.user.profile_pic.url %}"
                 alt="Admin"
                 class="rounded-circle"
                 width="150"
@@ -36,6 +33,14 @@
                 <a href={% url 'edit_student' student.user_id %} }>
                   <button class="btn btn-primary">Edit</button>
                 </a>
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteStudentConfirmationModal"
+                >
+                  Delete
+                </button>
               </div>
               <div class="mt-4">
                 {% if student.dataset_created %}
@@ -340,8 +345,8 @@
         {{student.user.last_name}}
       </div>
       <div class="modal-footer">
-        <form action="{%url 'train_model'%}" method="POST">
-          {% csrf_token%}
+        <form action="{%url 'delete_dataset_for_student' student.user_id %}" method="POST">
+          {% csrf_token %}
           <button
             type="button"
             class="btn btn-secondary"
@@ -359,6 +364,30 @@
     </div>
   </div>
 </div>
+
+<!-- Delete Student Modal -->
+<div class="modal fade" id="deleteStudentConfirmationModal" tabindex="-1" aria-labelledby="deleteStudentConfirmationModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteStudentConfirmationModalLabel">Train Model</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Student once deleted cannot be restored, if model is trained for this student, requires model re-training to delete student details from model.
+      </div>
+      <div class="modal-footer">
+        <form action="{%url 'delete_student' student.user_id %}" method="POST">
+          {% csrf_token%}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <input type="submit" value="Confirm Delete" class="btn btn-block btn-danger" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
   $(document).ready(function () {
     $(".input-daterange").datepicker({

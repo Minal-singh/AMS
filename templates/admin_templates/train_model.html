@@ -7,7 +7,7 @@ Train Model
 
 <div class="container mt-2">
   {% include '_partials/flash_messages.html'%}
-  {% if student_without_model_trained|length > 0 %}
+  {% if students_without_model_trained %}
   <div class="card bg-light">
     <div class="card-body">
       <form method="GET">
