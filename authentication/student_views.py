@@ -30,7 +30,7 @@ def student_attendance(request):
         start_date = datetime.date.fromisoformat("2022-01-02")
     total_days = (end_date - start_date).days + 1
     absent_count = total_days - present_count
-    print(total_days,present_count,absent_count)
+    print(total_days, present_count, absent_count)
     context = {
         "attendance_list": attendance_list,
         "filter": filter,

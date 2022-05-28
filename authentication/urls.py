@@ -10,7 +10,7 @@ urlpatterns = [
     path("admin/dashboard/", admin_views.index, name="admin_home"),
     path("admin/students/", admin_views.students, name="students"),
     path("admin/attendance/", admin_views.attendance, name="attendance"),
-    path("admin/students/<str:id>", admin_views.student_detail, name="student_detail"),
+    path("admin/students/<str:id>/", admin_views.student_detail, name="student_detail"),
     path("admin/register-student/", admin_views.register_student, name="register_student"),
     path("admin/edit-student/<str:id>/", admin_views.edit_student, name="edit_student"),
     path("admin/delete-student/<str:id>/", admin_views.delete_student, name="delete_student"),
@@ -38,9 +38,9 @@ urlpatterns = [
         name="mark_attendance",
     ),
     # chart data
-    path("chart-data1",admin_views.chart_data1,name="chart_data1"),
-    path("chart-data2",admin_views.chart_data2,name="chart_data2"),
-    path("chart-data3",admin_views.chart_data3,name="chart_data3"),
+    path("chart-data1", admin_views.chart_data1, name="chart_data1"),
+    path("chart-data2", admin_views.chart_data2, name="chart_data2"),
+    path("chart-data3", admin_views.chart_data3, name="chart_data3"),
     # student
     path("student/dashboard/", student_views.index, name="student_home"),
     path("student/attendance/", student_views.student_attendance, name="student_attendance"),

@@ -211,7 +211,7 @@ def edit_student(request, id):
 
         # if form has validation errors retain old data
         if context["has_error"]:
-            return render(request, "admin_templates/register.html", context, status=400)
+            return render(request, "admin_templates/edit_student_details.html", context, status=400)
 
         try:
             user = CustomUser.objects.get(id=student.user_id)
@@ -235,7 +235,7 @@ def edit_student(request, id):
             student.save()
             user.save()
             messages.add_message(request, messages.SUCCESS, "Successfully updated")
-            return redirect(reverse("students"))
+            return redirect(reverse("student_detail", kwargs={"id": id}))
 
         except Exception as e:
             messages.add_message(request, messages.ERROR, "Could not add: " + str(e))
@@ -304,12 +304,14 @@ def chart_data1(request):
         data[session] = Student.objects.filter(session=session).count()
     return JsonResponse({"data": data}, safe=False)
 
+
 def chart_data2(request):
     branches = Student.objects.values_list("branch", flat=True).distinct()
     data = {}
     for branch in branches:
         data[branch] = Student.objects.filter(branch=branch).count()
     return JsonResponse({"data": data}, safe=False)
+
 
 def chart_data3(request):
     courses = Student.objects.values_list("course", flat=True).distinct()

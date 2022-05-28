@@ -44,9 +44,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     user_type = models.CharField(default=1, choices=USER_TYPE, max_length=1)
     gender = models.CharField(max_length=1, choices=GENDER)
-    profile_pic = models.ImageField(
-        upload_to=profile_pic_directory_path, blank=True, null=True
-    )
+    profile_pic = models.ImageField(upload_to=profile_pic_directory_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     USERNAME_FIELD = "email"
@@ -56,8 +54,9 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.first_name + " " + self.last_name
 
-    def get_profile_pic_directory_path(self,filename):
-        return profile_pic_directory_path(self,filename)
+    def get_profile_pic_directory_path(self, filename):
+        return profile_pic_directory_path(self, filename)
+
 
 class Admin(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
