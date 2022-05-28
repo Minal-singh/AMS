@@ -1,3 +1,7 @@
+"""
+Views for students to check their attendance and profile, and restricting them to manipulate records.
+"""
+
 from django.shortcuts import render, get_object_or_404, reverse
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -6,12 +10,14 @@ from .filters import StudentAttendanceFilter
 import datetime
 
 
+# to render student profile
 def index(request):
     student = get_object_or_404(Student, user=request.user)
     context = {"student": student}
     return render(request, "student_templates/index.html", context)
 
 
+# attendance records
 def student_attendance(request):
     student = get_object_or_404(Student, user=request.user)
     attendance_list = Attendance.objects.filter(student=student).exclude(date__week_day__in=[1])
@@ -40,6 +46,7 @@ def student_attendance(request):
     return render(request, "student_templates/attendance.html", context)
 
 
+# to change password
 def change_password(request):
     if request.method == "POST":
         student = get_object_or_404(Student, user=request.user)

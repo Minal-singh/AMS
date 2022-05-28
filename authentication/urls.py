@@ -1,3 +1,7 @@
+"""
+Application level urls
+"""
+
 from django.urls import path
 from . import views, admin_views, student_views, face_recognition_views
 

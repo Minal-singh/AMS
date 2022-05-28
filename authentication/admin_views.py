@@ -1,3 +1,7 @@
+"""
+View for admin to manage(update, create or delete) students, and get the record of attendance.
+"""
+
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from validate_email import validate_email
@@ -13,7 +17,7 @@ from django.conf import settings
 
 BASE_DIR = settings.BASE_DIR
 
-
+# render admin dashboard
 def index(request):
     today = datetime.date.today()
     total_students = Student.objects.all().count()
@@ -27,6 +31,7 @@ def index(request):
     return render(request, "admin_templates/dashboard.html", context)
 
 
+# to register student
 def register_student(request):
     if request.GET and request.GET.get("reset", "") == "true":
         return HttpResponseRedirect(reverse("register_student"))
@@ -112,6 +117,7 @@ def register_student(request):
     return render(request, "admin_templates/register.html", context)
 
 
+# render list of students according to filters
 def students(request):
     students = Student.objects.all()
     filter = StudentFilter(request.GET, queryset=students)
@@ -120,21 +126,26 @@ def students(request):
     return render(request, "admin_templates/students.html", context)
 
 
+# detail of specific student along with his attendance
 def student_detail(request, id):
     student = get_object_or_404(Student, user_id=id)
+    # listing attendance for all days excluding sunday
     attendance_list = Attendance.objects.filter(student=student).exclude(date__week_day__in=[1])
     filter = StudentAttendanceFilter(request.GET, queryset=attendance_list)
+    # to get attendance records within filter range
     attendance_list = filter.qs
     present_count = attendance_list.filter(present=True).count()
     end_date = request.GET.get("date_before", "")
     if end_date != "":
         end_date = datetime.date.fromisoformat(end_date)
     else:
+        # if end date not mentioned in filter, then default will be today's date
         end_date = datetime.date.today()
     start_date = request.GET.get("date_after", "")
     if start_date != "":
         start_date = datetime.date.fromisoformat(start_date)
     else:
+        # if end date not mentioned in filter, then default will be from 2nd Jan
         start_date = datetime.date.fromisoformat("2022-01-02")
     total_days = (end_date - start_date).days + 1
     absent_count = total_days - present_count
@@ -148,6 +159,7 @@ def student_detail(request, id):
     return render(request, "admin_templates/student_details.html", context)
 
 
+# to edit student details
 def edit_student(request, id):
     if request.GET and request.GET.get("reset", "") == "true":
         return HttpResponseRedirect(reverse("edit_student", kwargs={"id": id}))
@@ -243,9 +255,11 @@ def edit_student(request, id):
     return render(request, "admin_templates/edit_student_details.html", context)
 
 
+# to delete student
 def delete_student(request, id):
     if request.method == "POST":
         student = get_object_or_404(Student, user_id=id)
+        # if student has dataset created, delete it as well
         if os.path.exists(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}")):
             shutil.rmtree(os.path.join(BASE_DIR, f"media/model_data/dataset/{str(id)}"))
         student.delete()
@@ -255,11 +269,14 @@ def delete_student(request, id):
     return HttpResponseRedirect(reverse(students))
 
 
+# to get attendance report according to filters for all students
 def attendance(request):
     attendance_list = Attendance.objects.all().exclude(date__week_day__in=[1])
     filter = AttendanceFilter(request.GET, queryset=attendance_list)
     attendance_list = filter.qs
     context = {"filter": filter, "attendance_list": attendance_list}
+
+    # for exporting attendance to excel
     if request.GET and request.GET.get("export", "") == "true":
         response = HttpResponse(content_type="application/ms-excel")
         response["Content-Disposition"] = "attachment; filename=Attendance" + str(datetime.datetime.now()) + ".xls"
@@ -293,9 +310,11 @@ def attendance(request):
     return render(request, "admin_templates/attendance.html", context)
 
 
+# guide for FAQs and contact
 def guide(request):
     return render(request, "admin_templates/guide.html")
 
+# ====== DATA VISUALIZATION ======= #
 
 def chart_data1(request):
     sessions = Student.objects.values_list("session", flat=True).order_by("session").distinct()

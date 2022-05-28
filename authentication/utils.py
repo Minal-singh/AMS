@@ -1,3 +1,7 @@
+"""
+Utility Function
+"""
+
 def validate_session(start_year, end_year):
     start_year = int(start_year)
     end_year = int(end_year)

@@ -1,3 +1,8 @@
+"""
+Handing face recognition and model training working and views.
+Tests are not written for this file as most of the part requires interaction with os and camera.
+"""
+
 from django.shortcuts import render, reverse, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -21,8 +26,7 @@ MODEL_DATA_PATH = os.path.join(BASE_DIR, "media/model_data/")
 MODEL = "hog"
 DISTANCE_THRESHOLD = 0.4
 
-# UTILITY FUNCTIONS
-
+# ======== UTILITY FUNCTIONS ========= #
 
 def create_dataset_util(id, camera=0):
     if not os.path.exists(os.path.join(MODEL_DATA_PATH, "dataset/")):
@@ -57,7 +61,9 @@ def create_dataset_util(id, camera=0):
 
         face_bounding_boxes = face_recognition.face_locations(rgb_small_frame, model=MODEL)
 
+        # if invalid frames count more than 500, dataset creation is terminated
         if invalid_frames_count > 500:
+            # if valid frames are more than 180 it will be considered for training
             if valid_frames_count > 180:
                 success = True
                 break
@@ -78,15 +84,19 @@ def create_dataset_util(id, camera=0):
         valid_frames_count = valid_frames_count + 1
         face_image_array = frame[top:bottom, left:right]
         final_image = Image.fromarray(face_image_array)
+        # saving images
         final_image.save(directory + "/" + str(valid_frames_count) + ".jpg")
+
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 255, 0), 1)
         cv2.waitKey(100)
         cv2.imshow("camera", frame)
         cv2.waitKey(1)
+
         # To get out of the loop
         if valid_frames_count > 200:
             success = True
             break
+
     # Stoping the videostream
     video.release()
     # destroying all the windows
@@ -145,6 +155,7 @@ def train_model_util():
     with open(model_save_path, "wb") as f:
         pickle.dump(knn_clf, f)
 
+    # update students database once model is trained for them
     for id in model_trained_for:
         student = get_object_or_404(Student, user_id=id)
         student.model_trained = True
@@ -236,9 +247,9 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
     return opencvimage, attendance_marked_for_students
 
 
-# VIEWS
+# ======== VIEWS ======== #
 
-
+# it renders list of students registered but pending for dataset creation 
 def create_dataset(request):
     students_without_dataset_created = Student.objects.filter(dataset_created=False)
     filter = StudentFilter(request.GET, queryset=students_without_dataset_created)
@@ -247,6 +258,7 @@ def create_dataset(request):
     return render(request, "admin_templates/create_dataset.html", context)
 
 
+# create dataset for specific student
 def create_dataset_for_student(request, id):
     if request.method == "POST":
         student = get_object_or_404(Student, user_id=id)
@@ -262,18 +274,21 @@ def create_dataset_for_student(request, id):
                 f"Dataset created successfully for {username}",
             )
         else:
+            # if dataset creation fails, delete the captured images to free the memory
             if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
                 shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
             messages.add_message(request, messages.ERROR, "Something went wrong...")
     return HttpResponseRedirect(reverse("student_detail", kwargs={"id": id}))
 
 
+# to delete the dataset for student
 def delete_dataset_for_student(request, id):
     if request.method == "POST":
         student = get_object_or_404(Student, user_id=id)
         if os.path.exists(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}")):
             shutil.rmtree(os.path.join(MODEL_DATA_PATH, f"dataset/{str(id)}"))
         username = student.user.first_name + " " + student.user.last_name
+        # Here model trained and dataset created both are marked False
         student.dataset_created = False
         student.model_trained = False
         student.save()

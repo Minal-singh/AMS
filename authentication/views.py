@@ -1,3 +1,7 @@
+"""
+Common views shared for admin and students both.
+"""
+
 from django.shortcuts import redirect, render, reverse
 from django.http import HttpResponseRedirect
 from django.contrib.auth import login, logout

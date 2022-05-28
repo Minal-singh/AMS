@@ -1,3 +1,7 @@
+"""
+Useful filter created for filtering data across application.
+"""
+
 from django import forms
 import django_filters
 from .models import Student, Attendance
