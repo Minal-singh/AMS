@@ -195,12 +195,12 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
     pil_image = Image.fromarray(frame)
     draw = ImageDraw.Draw(pil_image)
     for id, (top, right, bottom, left) in predictions:
-        if id != "unknown":
+        try:
+            user = CustomUser.objects.get(id=id)
             if id in attendance_marked_for_students.keys():
                 name = attendance_marked_for_students[id]
             else:
                 today = datetime.date.today()
-                user = CustomUser.objects.get(id=id)
                 name = user.first_name + " " + user.last_name
                 attendance_marked_for_students[id] = name
                 try:
@@ -217,8 +217,8 @@ def show_prediction_labels_on_image(frame, predictions, attendance_marked_for_st
                 else:
                     query.present = True
                     query.save()
-        else:
-            name = id
+        except Exception:
+            name = "unknown"
         # enlarge the predictions for the full sized image.
         top *= 4
         right *= 4
