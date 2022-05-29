@@ -277,7 +277,7 @@ def attendance(request):
     context = {"filter": filter, "attendance_list": attendance_list}
 
     # for exporting attendance to excel
-    if request.GET and request.GET.get("export", "") == "true":
+    if request.POST:
         response = HttpResponse(content_type="application/ms-excel")
         response["Content-Disposition"] = "attachment; filename=Attendance" + str(datetime.datetime.now()) + ".xls"
         wb = xlwt.Workbook(encoding="utf-8")

@@ -6,9 +6,10 @@ Attendance
 {% block content %}
 
 <div class="container">
-    <a href="?export=true">
-        <button class="btn btn-dark float-end mb-2">Export Excel</button>
-    </a>
+    <form method="POST">
+        {% csrf_token %}
+        <button id="exportButton" type="submit" class="btn btn-dark float-end mb-2">Export Excel</button>
+    </form>
     <div class="card bg-light w-100 b-0">
         <div class="card-body">
             <form method="GET" autocomplete="off">
@@ -101,6 +102,12 @@ Attendance
         todayHighlight: true,
         });
     });
+    $(function(){
+        $('#exportButton').click(function(){
+            setTimeout(function() {
+                $("#loading").hide();}, 2000);
+        })
+    })
 </script>
 
 {% endblock content %}
